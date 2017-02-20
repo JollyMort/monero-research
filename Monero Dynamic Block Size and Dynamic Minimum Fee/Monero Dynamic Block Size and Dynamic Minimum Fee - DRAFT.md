@@ -22,7 +22,7 @@ The current minimum fee has originally been given as:
 
 `F_min_current = (R / R_0) * (M_0 / M) * F_0`,
 
-where `R_0 = 10 monero` is the reference base reward, and `F0 = 0.002 monero / kB`.
+where `R_0 = 10 monero` is the reference base reward, and `F_0 = 0.002 monero / kB`.
 
 Considering that `R_0`, `M_0` and `F_0` are constants, the expression can be rewritten as:
 
