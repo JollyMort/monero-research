@@ -165,17 +165,30 @@ solving dE_A / dW for `F` gives the optimum fee expression:
 
 `F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)`.
 
-### 4. End Result
 
-### 5. A Note on Wallet Fee Settings
+### 4. Wallet Fee Settings
 
-### 6. A Note on Security
+proposed multipliers 1x 4x(default) 20x 166x
 
-### 7. A Note on Privacy
+### 5. End Result
+
+[fig5-1] optimum lines & multipliers
+[fig5-2] parabolas
+[fig5-3] price/tx, price/block
+[fig5-4] min possible fee
+
+### 6. A Note on Security (fireice)
+
+regarding penalty / min. fee safe implementation?
+
+### 7. A Note on Privacy (fireice)
+
+regarding multipliers 1x 4x(default) 20x 166x? fyi, right now it's 1x,20x,166x iirc
 
 ### 8. Conclusion
 
 ### Appendices
 
-1. VB Code for Current Formulas (Excel user-defined functions)
-2. VB Code for Proposed Formulas (Excel user-defined functions)
+1. VB Code with Constants
+2. VB Code for Current Formulas (Excel user-defined functions)
+3. VB Code for Proposed Formulas (Excel user-defined functions)
