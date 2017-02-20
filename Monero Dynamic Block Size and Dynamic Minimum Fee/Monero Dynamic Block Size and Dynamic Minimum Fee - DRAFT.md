@@ -2,118 +2,126 @@
 
 ### Brief
 
-Monero uses dynamic block size as part of consensus rules which penalizes miners should they expand the block size above the median of last 100 blocks. This is coupled with a do-not-relay minimum fee. Client software uses multipliers of the minimum fee to give priority to transactions in case of heavy network use during peak periods.
-We will analyze properties of the formulas chosen and impact of different fee multipliers on neutral and optimum strategies for the miners, and observe how they're independent of the network state. We will demonstrate how the formulas incentivise steady expansion of block size at a fixed rate of 0.6% for as long as the mempool is full of transactions offering the minimum fee.
-Further, we will show how relation between typical transaction size and minimum block size affects this by making block size increases discrete. To address this problem, modified formulas are presented and recommendation made for any future changes in typical transaction sizes. We will also propose a set of different fee multipliers.
+Monero uses dynamic block size mechanism to control the rate at which the block size can grow. As part of consensus rules, part of the base block reward is witheld should a miner expand the size of a given block above the median size of the last 100 blocks. This is coupled with a do-not-relay minimum fee. Client software uses multipliers of the minimum fee to give priority to transactions in case of heavy network use during peak periods.
+
+We will analyze the formulas currently in use and impact of different fee multipliers on neutral and optimum strategies for the miners and observe how they're independent of the network state. We will demonstrate how the current formulas incentivise a steady block size growth at a rate of 0.6%, as long as there's a pool of transactions offering the minimum fee to draw from.
+
+Further, we will show how the ratio between typical transaction size and minimum block size affects the effectiveness of the formulas by making block size increases discrete. To address this problem, modified formulas are presented and recommendation made for any future changes in typical transaction sizes.
 
 Conclusion is that present dynamic block size penalty formula doesn't work as intended in situations where typical transaction size is close to median block size. The penalty formula must be changed to allow smooth transition into a network state where median block size will be sufficiently greater than the typical transaction size.
 
-### Analysis of Current Dynamic Block Size and Dynamic Minimum Fee
+### 1. Analysis of Current Dynamic Block Size and Dynamic Minimum Fee
 
-Block reward penalty is given by:
+Current block reward penalty is given by:
 
-`P = R * ((B / M) - 1) ^ 2`,
+`P_current = R * ((B / M) - 1) ^ 2`,
 
-where `R` is the base reward, `B` the block size and `M` the median block size of last 100 blocks. The penalty doesn't come in effect unless `B > M_0`, where `M_0 = 60000 bytes` is the minimum penalty-free block size. Maximum block size is `2 * M`.
+where `R` is the base block reward, `B` the block size and `M` the median block size of last 100 blocks. The penalty doesn't come in effect unless `B > M_0`, where `M_0 = 60000 bytes` is the minimum penalty-free block size. Maximum allowed block size is `2 * M`, at which the full base block reward is witheld.
 
-The minimum fee had originally been given as:
+The current minimum fee has originally been given as:
 
-`F_min = (R / R_0) * (M_0 / M) * F_0`,
+`F_min_current = (R / R_0) * (M_0 / M) * F_0`,
 
 where `R_0 = 10 monero` is the reference base reward, and `F0 = 0.002 monero / kB`.
 
 Considering that `R_0`, `M_0` and `F_0` are constants, the expression can be rewritten as:
 
-`F_min = (R / M) * (W_0 - 1)`, where
+`F_min_current = (R / M) * (W_0 - 1)`, where
 
 `W_0 - 1 = (M_0 * F_0) / R_0 = 0.0012`.
 
-The value of `W_0` represents the block size expansion factor for which the minimum fee would entirely cover for the block penalty, making a block size of `B = M * W_0` neutral for the miner.
+As we will see below, the value of `W_0` represents the block size expansion factor for which the minimum fee would entirely cover for the block penalty, making a block size of `B = M * W_0` neutral for miner profit.
 
-We can see this by solving the problem phrased as: "Find the additional fee earned by expanding the block size such that it covers for the block reward lost due to expanding the block size.". We will call this the neutral fee function.
+We will find a general neutral fee function which will output a fee required to make block size expansion with a given factor neutral to miner profit.
 
 Recall
  
-`P = R * ((B / M) - 1) ^ 2`, and define
+`P_current = R * ((B / M) - 1) ^ 2`, and define
 
 `F_A = B * F - M * F = F * (B - M)`,
 
-where `F_A` is the additional profit from fees should the block be expanded to a size of `B` and filled with transactions paying transaction fee `F`.
+where `F_A` is the additional earnings from fees should the block be expanded to a size of `B` and filled with transactions paying transaction fee `F`.
 
-We will also define additional miner earnings as:
-
-E_A = F_A - P.
-
-Substituting with `W = B / M` and solving `E_A = 0` for `F`, we find:
-
-`F_n = (R / M) * (W - 1)`.
-
-Which is the fee required to make an expansion of the block size to `B = W * M` neutral for the miner, as doing so would yield the same total reward for the miner as would mining a block of size `B = M` with transaction fees of `F_n`.
-However, while the miner doesn't lose anything compared to the base case, there is an opportunity loss because he could opt for some `M < B < W * M` which would give him a bigger overall reward.
-
-We can now observe that:
-
-F_min = F_n(W := W_0).
-
-To find the optimum fee for a given block size expansion, we must find the maximum of the additional earnings function:
+We will also define additional miner profit as
 
 `E_A = F_A - P`.
 
-Solving `dE_A/dW = 0` for `F` gives:
+Substituting with `W = B / M` and solving `E_A = 0` for `F`, we find:
 
-`F_o = 2 * (R / M) * (W - 1)`.
+`F_n_current = (R / M) * (W - 1)`.
+
+Which is the fee required to make an expansion of the block size to `B = W * M` neutral to miner profit, as doing so would yield the same total reward for the miner as would mining a block of the size `B = M` with transaction fees of `F_n_current`.
+However, while the miner doesn't lose anything compared to the base case, there is a missed opportunity because he could opt for some optimum increase `M < B < W * M` which would give him the biggest reward.
+
+We can now observe that for `W = W_0`
+
+`F_min_current = F_n_current`.
+
+To find the optimum fee for a given block size expansion, we must find the maximum of the additional profit function
+
+`E_A = F_A - P`.
+
+Solving `dE_A / dW = 0` for `F` gives
+
+`F_o_current = 2 * (R / M) * (W - 1)`.
 
 Which shows a linear relationship between the transaction fee and optimum block size increase.
 
-To present the impact of different fee multipliers on optimum block size expansion, we will substitute the fee with a multiplier of the minimum fee:
+To present the impact of different fee multipliers on neutral and optimum block size expansions, we will substitute the fee with a multiplier of the minimum fee
 
-F = F_min * F_mult,
+F = F_min_current * F_mult,
 
-and plug it into the neutral and optimum fee equations. Rearranging gives:
+and plug it into the neutral and optimum fee equations. Rearranging gives
 
-`F_mult_n = (W - 1) / (W_0 - 1)` for the neutral fee, and
+`F_mult_n_current = (W - 1) / (W_0 - 1)` for the neutral fee, and
 
-`F_mult_o = 2  * (W - 1) / (W_0 - 1)` for the optimum fee.
+`F_mult_o_current = 2  * (W - 1) / (W_0 - 1)` for the optimum fee.
 
-which we plot on the chart below.
+which we will plot on the chart below.
 
-![fig1-1](https://cloud.githubusercontent.com/assets/20967651/22898042/2caa81e2-f226-11e6-9951-e4f8cc0159c1.png)
+[fig1-1]
 
-We will further examine miner incentives by plotting the relationship between block size expansion and additional miner earnings for various fee multipliers. On the same chart, we will show the optimum curve which connects maximums of each fee multiplier curve.
+We will further examine miner incentives by plotting the relationship between block size expansion and additional miner profit for various fee multipliers. On the same chart, we will show the optimum curve which connects the min. fee multiplier curve maximums.
 
-![fig1-2](https://cloud.githubusercontent.com/assets/20967651/22898052/34af9e2c-f226-11e6-8dd8-b1afc31bd9f7.png)
+[fig1-2]
 
-We see that each fee multiplier curve has one point of maximum earnings for the miner. Another interesting point is the 2nd crossing with the horizontal axis, at which the miner would earn the same total by increasing the block size as he would if he mined a block with 0% expansion.
+We see that each fee multiplier curve has one point of maximum profit for the miner. Another interesting point is the 2nd crossing with the horizontal axis, at which the miner would earn the same total by increasing the block size as he would if he mined a block with 0% expansion.
 
-We can observe linear relationship between the min. fee multiplier and optimum block size increase. For example, with the minimum fee, it's optimum for the miner to keep increasing the block size for 0.6% above median. He can keep doing this as long as there are enough transactions to fill the blocks. To increase the block size for 6%, a fee multiplier of x10 is required, to increase for 60% it's x100, etc.
+We can observe linear relationship between the min. fee multiplier and optimum block size expansion. For example, with the minimum fee, it's optimal for the miner to keep growing the block size with the rate of 0.6% per 100 blocks. He can keep doing this as long as there are enough transactions to fill the blocks. To increase the block size with a 6% rate, a fee multiplier of 10 is required, to increase for 60% it's 100, and ultimately a 100% increase with a 166.67 multiplier.
 
-It's important to note that these charts are invariant to network state. They look the same for any block reward and actual block size median.
+It's important to note that these charts are invariant to network state. They look the same for any base block reward and actual block size median.
 
-The question is, given a mempool with enough transactions and for any fee multiplier, can a miner build such a block that would place the block on the optimum curve? The answer is no, and below we will analyze why.
+The question is, given a pool of transactions with any fee multiplier, can a miner build such a block which would lay on the optimum curve? The answer is no, and below we will analyze why.
 
-### The Problem
+### 2. The Problem of Relative Typical Transaction Size
 
-While the existing formulas show a permanent incentive to increase the block size for 0.6% as long as there's enough transactions in the mempool, this smooth increase is not feasible to achieve in practice. This is because a miner can affect the block size only by picking transactions from the mempool. Because of the ratio between typical transaction size and minimum block size being greater than 0.6%, the miner has no easy way to achieve this target of block size increase. Of course, not all transaction have the same size nor offer the same fee, and transactions variance could be exploited to build an occasional optimum block but for some typical case it will not be feasible. In practice, the block size increases are feasible to do only in some discrete steps. To analyze this, we will define a parameter:
+While the existing formulas show a permanent incentive to grow the block size at a rate of  0.6% for as long as there are enough transactions in the mempool, this gradual increase is not feasible to achieve in practice. This is because a miner can affect the block size only by picking transactions from the pool. Because of the ratio between a typical transaction size and minimum block size being greater than 0.6%, the miner has no easy way to achieve this target of block size increase. Of course, not all transaction have the same size nor offer the same fee, and transactions variance could be exploited to build an occasional optimal block but for some typical case it will not be feasible. In practice, the block size increases are feasible to do only in some discrete steps. To analyze this, we will define a parameter:
 
 `T = T_0 / M`,
 
 where T_0 is the size of a typical Monero transaction, and M the median block size as previously defined. The parameter `T` is the size of block expansion steps. This defines the set of possible block size expansions as `{0 * T, 1 * T, 2 * T, ..., n * T}`. Each of these discrete steps can be coupled with a fee multiplier needed to make the step neutral or optimum for the miner. Any fee multiplier greater than the neutral will yield additional profit for the miner with the optimum fee multiplier maximizing the profit for a given block size increase.
 
-The ratio `T` changes either with changing the `T_0` as part of protocol change affecting typical transaction sizes, or with the median block size `M`. The parameter `T` defines feasible block size increase steps but it is not stateless as it depends on the actual median block size. Below we will examine the case for `M = 60kB` and `T_0` of 2kB and 13kB as typical sizes of non-RCT and RCT transactions.
+The ratio `T` changes either with changing the `T_0` as part of protocol change affecting typical transaction sizes, or with the median block size `M` as a consequence of network state. The parameter `T` defines feasible block size increase steps. Below we will examine the case for `M = 60kB` and `T_0` of 2kB and 13kB as typical sizes of non-RCT and RCT transactions.
 
-![fig2-1](https://cloud.githubusercontent.com/assets/20967651/22898535/f7a5e020-f227-11e6-9568-40fccc60a414.png)
+[fig2-1]
 
 Above we see how the jump in transaction sizes has created a barrier to expanding the block sizes smoothly. This can also be seen on the chart below.
 
-![fig2-2](https://cloud.githubusercontent.com/assets/20967651/22899531/6e17605a-f22b-11e6-9149-526a81731877.png)
+[fig2-2]
 
-Pre-RCT, the first step was at 3.3% increase with neutral multiplier of x2.78, and post-RCT it is at 20% increase with neutral multiplier of x16.67. In addition, the fee/TX has jumped 6-fold. If somehow the network should get to a state of bigger block size, the discrete steps would become more dense and allow for smoother changes. The problem is in getting to that state in the first place. As the blocks expand, optimum steps for smaller multipliers will become feasible. With the current formulas, the median block size should be at `M = 1079kB` to make the neutral step for minimum fee available or `M=2171kB` to make the optimum step for minimum fee available.
+Pre-RCT, the first step was at 3.3% increase with neutral multiplier of xx, and post-RCT it is at xx increase with neutral multiplier of xx. In addition, the fee / TX has jumped 6.5-fold. If somehow the network should get to a state of bigger block size, the discrete steps would become more dense and allow for smoother changes. The problem is in getting to that state in the first place. As the blocks expand, optimum steps for smaller multipliers will become feasible. With the current formulas, the median block size should be at `M = 1079kB` to make the neutral step for minimum fee available or `M=2171kB` to make the optimum step for minimum fee available. This problem was present pre-RCT but with RCT it became more severe.
 
-### Solution
+Below we show the difference between ideal steady growth and currently feasible one for both RCT and non-RCT transactions, with different scenarios based on relationship between block size and market price.
+
+[fig2-3]
+
+As seen above, the smallest feasible min. fee is at x$ for RCT and x$ for non-RCT. With such a price, theres a real danger that this could hinder adoption and prevent transition into a state where steady growth is possible.
+
+### 3. Proposed Solution
 
 The objective is to make the smallest increment possible, while still keeping the network usage rational by preventing free block size expansion.
 
-The idea is to scale down the penalty formula such that the neutral fee to add 1 TX over the median remains constant up to the point where it 1 TX would mean a 1.2% increase, where the original formulas would kick in again. However, full penalty must still be incured for 100% increase. 
+The idea is to scale down the penalty formula such that the neutral fee to add 1 TX over the median remains constant up to the point where it 1 TX would mean a 1.2% increase, from where the original formulas would kick in again. However, full penalty must still be incured for a 100% increase. 
 
 The simplest way to achieve this transition is multiplying the current penalty formula with a line function:
 
@@ -121,25 +129,29 @@ The simplest way to achieve this transition is multiplying the current penalty f
 
 where parameters `k` and `l` must be determined to accomodate the proposition above.
 
-First, we will find `l`, such that:
+First, we will find `l`, such that
 
-P_new(W := 2) = R, for any `k`.
+`P_new = R`, for `W = 2` and any `k`.
 
-Solving the above gives:
+Solving the above gives
 
-l = 1 - 2 * k.
+`l = 1 - 2 * k`,
 
-The parameter `k` must be still be determined. It will be determined as a solution to the problem defined as: "Find such `k` for which the neutral fee to increase the block size for size of 1 typical TX above median will be the same as it would be for a network state where the size of 1 typical TX would be 1.2% of the median block size and with the original penalty formula.". We will first define one more parameter:
+and the penalty formula can now be expressed as
+
+`P_new = (k * (W - 2) + 1) * (W - 1) ^ 2 * R`.
+
+The parameter `k` must be still be determined. It will be found as such `k` for which the neutral fee to increase the block size for size of 1 typical TX above median will be the same as it would be for a network state where the size of 1 typical TX would be 1.2% of the median block size and with the original penalty formula. We will first define one more parameter
 
 `W_T = 1 + T = 1 + T_0 / M`,
 
 which is the block expansion factor such that the block size can fit 1 typical transaction above the median size.
 
-With this, it's easy to express the above mentioned problem as:
+With this we can express the above proposition as 
 
 `(k * (W_T - 2) + 1) * (R / M) * (W_T - 1) = (R / M) * (W_0 - 1)`.
 
-Solving for `k` gives:
+Solving for `k` gives
 
 `k = ((T * (2 - T) + (W0 - 2) * W0) / ((T - 2) * (T - 1) ^ 2))`.
 
@@ -147,10 +159,20 @@ The new penalty formula will be valid while the condition `T > W_0` holds. For `
 
 With the penalty formula defined, it now remains to again find expressions for neutral and optimum fees.
 
-Again, solving E_A = 0 gives the neutral fee expression:
+Again, solving `E_A = 0` for `F` gives the neutral fee expression:
 
 `F_n = (k * (W - 2) + 1) * (R / M) * (W - 1)`, and
 
-solving dE_A / dW gives the optimum fee expression:
+solving dE_A / dW for `F` gives the optimum fee expression:
 
 `F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)`.
+
+### 4. End Result
+
+### 5. A Note on Wallet Fee Settings
+
+### 6. A Note on Security
+
+### 7. A Note on Privacy
+
+### 8. Conclusion
