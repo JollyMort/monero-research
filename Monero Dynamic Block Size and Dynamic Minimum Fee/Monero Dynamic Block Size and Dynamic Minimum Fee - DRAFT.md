@@ -152,3 +152,13 @@ solving dE_A / dW gives the optimum fee expression:
 ![fig3-1](https://cloud.githubusercontent.com/assets/20967651/23096501/550d6fc2-f61e-11e6-8085-c13f51d931da.png)
 
 ![fig3-2](https://cloud.githubusercontent.com/assets/20967651/23097734/022f561c-f63c-11e6-8962-34e706bd3eff.png)
+
+...
+
+P_alt = (k * (W - 2) + 1) * (W - 1) ^ 2 * R	
+
+k = (-T ^ 2 + 2 * T + (W0 - 2) * W0) / ((T - 2) * (T - 1) ^ 2)
+
+F_n = (k * (W - 2) + 1) * (R / M) * (W - 1)
+
+F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)
