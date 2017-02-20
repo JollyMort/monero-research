@@ -2,11 +2,11 @@
 
 ### Brief
 
-Monero uses dynamic block size as part of consensus rules which penalizes miners should they increase the block size above the median of last 100 blocks. This is coupled with a do-not-relay minimum recommended fee. Client software uses multipliers of the minimum fee to give priority to transactions in case of heavy network use during peak periods.
-We will analyze properties of the formulas chosen and impact of different fee multipliers on neutral and optimum strategies for the miners. We observe how the formulas allow for smooth increase and neutral and optimum strategies are independent of the network state.
-Further, we will show how relation between typical transaction size and minimum block size affects this by making block size increases discrete. To address this problem, modified formulas are presented and recommendation made for any future changes in typical transaction sizes.
+Monero uses dynamic block size as part of consensus rules which penalizes miners should they expand the block size above the median of last 100 blocks. This is coupled with a do-not-relay minimum fee. Client software uses multipliers of the minimum fee to give priority to transactions in case of heavy network use during peak periods.
+We will analyze properties of the formulas chosen and impact of different fee multipliers on neutral and optimum strategies for the miners, and observe how they're independent of the network state. We will demonstrate how the formulas incentivise steady expansion of block size at a fixed rate of 0.6% for as long as the mempool is full of transactions offering the minimum fee.
+Further, we will show how relation between typical transaction size and minimum block size affects this by making block size increases discrete. To address this problem, modified formulas are presented and recommendation made for any future changes in typical transaction sizes. We will also propose a set of different fee multipliers.
 
-Conclusion is that present dynamic block size penalty formula doesn't work as intended in situations where typical transaction size is close to median block size. The penalty formula must be changed to allow transition into a network state where median block size will be sufficiently greater than the typical transaction size.
+Conclusion is that present dynamic block size penalty formula doesn't work as intended in situations where typical transaction size is close to median block size. The penalty formula must be changed to allow smooth transition into a network state where median block size will be sufficiently greater than the typical transaction size.
 
 ### Analysis of Current Dynamic Block Size and Dynamic Minimum Fee
 
@@ -111,17 +111,25 @@ Pre-RCT, the first step was at 3.3% increase with neutral multiplier of x2.78, a
 
 ### Solution
 
-The objective is to make smaller increments possible, while still keeping the network usage rational by preventing free block size expansion.
+The objective is to make the smallest increment possible, while still keeping the network usage rational by preventing free block size expansion.
 
-The idea is to scale down the penalty formula such that the neutral fee to add 1 TX over the median remains constant up to the point where it 1 TX would mean an 1.2% increase, where the original formulas would kick in again. At the same time, doubling the median should still cause the full penalty.
+The idea is to scale down the penalty formula such that the neutral fee to add 1 TX over the median remains constant up to the point where it 1 TX would mean a 1.2% increase, where the original formulas would kick in again. However, full penalty must still be incured for 100% increase. 
 
-A convenient way to achieve this transition is multiplying the current penalty formula with an exponentiation function:
+The simplest way to achieve this transition is multiplying the current penalty formula with a line function:
 
-`P_new = a ^ (2 - W) * (W - 1) ^ 2 * R`.
+`P_new = (k * W + l) * (W - 1) ^ 2 * R`,
 
-The exponent `(2-W)` will ensure that increasing the block size to 2x the median will always result in a full block reward penalty.
+where parameters `k` and `l` must be determined to accomodate the proposition above.
 
-The parameter `a` must be still be determined. It will be determined as a solution to the problem defined as: "Find such `a` for which the neutral fee to increase the block size for size of 1 typical TX above median will be the same as it would be for a network state where the size of 1 typical TX would be 1.2% of the median block size and with the original penalty formula.". We will first define one more parameter:
+First, we will find `l`, such that:
+
+P_new(W := 2) = R, for any `k`.
+
+Solving the above gives:
+
+l = 1 - 2 * k.
+
+The parameter `k` must be still be determined. It will be determined as a solution to the problem defined as: "Find such `k` for which the neutral fee to increase the block size for size of 1 typical TX above median will be the same as it would be for a network state where the size of 1 typical TX would be 1.2% of the median block size and with the original penalty formula.". We will first define one more parameter:
 
 `W_T = 1 + T = 1 + T_0 / M`,
 
@@ -129,36 +137,20 @@ which is the block expansion factor such that the block size can fit 1 typical t
 
 With this, it's easy to express the above mentioned problem as:
 
-`a ^ (2 - W_T) * (W_T - 1) ^ 2 * R = (W_0 - 1) ^ 2 * R`.
+`(k * (W_T - 2) + 1) * (R / M) * (W_T - 1) = (R / M) * (W_0 - 1)`.
 
-Solving for `a` gives:
+Solving for `k` gives:
 
-`a = ((W_0 - 1) ^ 2 / (T - 1) ^ 2) ^ (1 / (2 - T))`.
+`k = ((T * (2 - T) + (W0 - 2) * W0) / ((T - 2) * (T - 1) ^ 2))`.
 
-The new penalty formula will be valid while the condition `T > W_0` holds. For `T <= W_0`, the original penalty calculation will be used. The point where `T = W_0` will give the same penalty, regardless of which formulation is used because `a = 1` for that case.
+The new penalty formula will be valid while the condition `T > W_0` holds. For `T <= W_0`, the original penalty calculation will be used. The point where `T = W_0` will give the same penalty, regardless of which expression is used because `k = 1` for that case.
 
 With the penalty formula defined, it now remains to again find expressions for neutral and optimum fees.
 
 Again, solving E_A = 0 gives the neutral fee expression:
 
-`F_n = a ^ (2 - W) * (R / M) * (W - 1)`, and
+`F_n = (k * (W - 2) + 1) * (R / M) * (W - 1)`, and
 
 solving dE_A / dW gives the optimum fee expression:
 
-`F_o = (R / M) * (W - 1) * a ^ (2 - W) * (2 + Log(a) - W * Log(a))`.
-
-...
-
-![fig3-1](https://cloud.githubusercontent.com/assets/20967651/23096501/550d6fc2-f61e-11e6-8085-c13f51d931da.png)
-
-![fig3-2](https://cloud.githubusercontent.com/assets/20967651/23097734/022f561c-f63c-11e6-8962-34e706bd3eff.png)
-
-...
-
-P_alt = (k * (W - 2) + 1) * (W - 1) ^ 2 * R	
-
-k = (-T ^ 2 + 2 * T + (W0 - 2) * W0) / ((T - 2) * (T - 1) ^ 2)
-
-F_n = (k * (W - 2) + 1) * (R / M) * (W - 1)
-
-F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)
+`F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)`.
