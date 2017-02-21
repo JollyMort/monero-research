@@ -165,6 +165,25 @@ solving dE_A / dW for `F` gives the optimum fee expression:
 
 `F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)`.
 
+#### 3.2 Even Better one, charts etc. TODO
+
+	'Scaling parameter
+	Dim k As Double
+	k = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))
+
+	Dim P As Double
+	If W_0 < W_T Then
+		'Penalty according to the new formula
+		If W < W_T Then
+			P = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W_T - 1) * (W_0 - 1) * R
+		Else
+			P = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R
+		End If
+	Else
+		'Penalty according to the old formula
+		P = getBlockRewardPenaltyOld(R, M, W)
+	End If
+
 
 ### 4. Wallet Fee Settings
 
