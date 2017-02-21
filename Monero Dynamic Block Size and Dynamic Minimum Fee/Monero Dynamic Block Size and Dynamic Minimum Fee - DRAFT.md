@@ -167,6 +167,32 @@ solving dE_A / dW for `F` gives the optimum fee expression:
 
 #### 3.2 Even Better one, charts etc. TODO
 
+The idea is to find such penalty formula where the current minimum fee would be adequate to accomodate a neutral block size increase for a single typical transaction size.
+
+from E_A = F_A - P and E_A = 0, we get
+
+P = F_min_current * (W - 1) * M.
+
+Expanding gives
+
+P_1 = (W_0 - 1) * (W - 1) * R.
+
+Note how P_1(W_T) = P_current(W_0). While this works well for the special case where W=W_T, it must also result in full penalty for W=2 with some transition between W_T and W. Simplest is to multiply W_0 in the equation with a line function f(W)=k*W+l...
+
+P_2 = (W_0 * (k * W + l) - 1) * (W - 1) * R.
+
+First we say P_old(w=2) = P_2(w=2) and solve:
+
+l = 1/(W_0)-2*k
+
+and then solve P_1(Wt) = P_2(Wt):
+
+k = (w0 - 2)/((w0-1)*(wt-2))
+
+heureka :)
+
+
+
 	'Scaling parameter
 	Dim k As Double
 	k = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))
