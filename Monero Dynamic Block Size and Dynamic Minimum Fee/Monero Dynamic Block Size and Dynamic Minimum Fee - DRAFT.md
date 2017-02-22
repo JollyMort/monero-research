@@ -165,6 +165,8 @@ solving dE_A / dW for `F` gives the optimum fee expression:
 
 `F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)`.
 
+(todo: add note for W<W_T)
+
 ### 4. Wallet Fee Settings
 
 proposed multipliers 1x 4x(default) 20x 166x
@@ -172,7 +174,7 @@ proposed multipliers 1x 4x(default) 20x 166x
 ### 5. End Result
 
 [fig5-1] optimum lines & multipliers
-[fig5-2] parabolas
+![fig5-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-2.png?raw=true)
 ![fig5-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-3.png?raw=true)
 ![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
 [fig5-5] min possible fee
