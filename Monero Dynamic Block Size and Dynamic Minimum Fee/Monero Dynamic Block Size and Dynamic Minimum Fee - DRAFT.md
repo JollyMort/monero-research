@@ -173,8 +173,9 @@ proposed multipliers 1x 4x(default) 20x 166x
 
 [fig5-1] optimum lines & multipliers
 [fig5-2] parabolas
-[fig5-3] price/tx, price/block
-[fig5-4] min possible fee
+[fig5-3] price/tx
+[fig5-4] price/block
+[fig5-5] min possible fee
 
 ### 6. A Note on Security (fireice)
 
