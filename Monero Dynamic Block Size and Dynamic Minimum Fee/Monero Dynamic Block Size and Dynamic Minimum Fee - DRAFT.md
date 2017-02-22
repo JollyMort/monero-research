@@ -117,7 +117,7 @@ Pre-RCT, the first step was at xx% increase with neutral multiplier of xx, and p
 
 Below we show the difference between ideal steady growth and currently feasible one for both RCT and non-RCT transactions, with different scenarios based on relationship between block size and market price.
 
-![fig2-3](https://github.com/JollyMort/monero-research/blob/30a6140ff5e4f65af8c8e82505377969419d2346/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-3.png?raw=true)
+![fig2-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-3.png?raw=true)
 
 As seen above, the smallest feasible min. fee is at xx$ for RCT and xx$ for non-RCT. With such a price, theres a real danger of hinder adoption and preventing transition into a state where steady growth is feasible.
 
@@ -173,8 +173,8 @@ proposed multipliers 1x 4x(default) 20x 166x
 
 [fig5-1] optimum lines & multipliers
 [fig5-2] parabolas
-[fig5-3] price/tx
-[fig5-4] price/block
+![fig5-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-3.png?raw=true)
+![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
 [fig5-5] min possible fee
 
 ### 6. A Note on Security (fireice)
