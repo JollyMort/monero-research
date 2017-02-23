@@ -177,7 +177,8 @@ proposed multipliers 1x 4x(default) 20x 166x
 ![fig5-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-2.png?raw=true)
 ![fig5-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-3.png?raw=true)
 ![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
-[fig5-5] min possible fee
+[fig5-5] simulation of "cost to increase to x" before/after (TODO)
+[fig5-6] min possible fee
 
 ### 6. A Note on Security (fireice)
 
