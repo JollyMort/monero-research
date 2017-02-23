@@ -79,11 +79,11 @@ and plug it into the neutral and optimum fee equations. Rearranging gives
 
 which we will plot on the chart below.
 
-[fig1-1]
+![fig1-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig1-1.png?raw=true)
 
 We will further examine miner incentives by plotting the relationship between block size expansion and additional miner profit for various fee multipliers. On the same chart, we will show the optimum curve which connects the min. fee multiplier curve maximums.
 
-[fig1-2]
+![fig1-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig1-2.png?raw=true)
 
 We see that each fee multiplier curve has one point of maximum profit for the miner. Another interesting point is the 2nd crossing with the horizontal axis, at which the miner would earn the same total by increasing the block size as he would if he mined a block with 0% expansion.
 
@@ -107,11 +107,11 @@ We can define the set of feasible block size expansions as `W_f = {1 + T_0 / M, 
 
 The minimum feasible expansion factor `W_T` changes either with changing the `T_0` as part of protocol change affecting typical transaction sizes, or with the median block size `M` as a consequence of network state. It also defines feasible block size increase steps. Below we will examine the case for `M = 60kB` and `T_0` of xxkB and 13kB as typical sizes of non-RCT and RCT transactions.
 
-[fig2-1]
+![fig2-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-1.png?raw=true)
 
 Above we see how the jump in transaction sizes has created a barrier to expanding the block sizes smoothly. This can also be seen on the chart below.
 
-[fig2-2]
+![fig2-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-2.png?raw=true)
 
 Pre-RCT, the first step was at xx% increase with neutral multiplier of xx, and post-RCT it is at xx increase with neutral multiplier of xx. In addition, the fee / TX has jumped xx-fold. If somehow the network should get to a state of bigger block size, the discrete steps would become more dense and allow for smoother changes. The problem is in getting to that state in the first place. As the blocks expand, optimum steps for smaller multipliers will become feasible. With the current formulas, the median block size should be at `M = xxkB` to make the neutral step for minimum fee available or `M = xxkB` to make the optimum step for minimum fee available. This problem was present pre-RCT but with RCT it became more severe.
 
@@ -173,7 +173,7 @@ proposed multipliers 1x 4x(default) 20x 166x
 
 ### 5. End Result
 
-[fig5-1] optimum lines & multipliers
+![fig5-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-1.png?raw=true)
 ![fig5-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-2.png?raw=true)
 ![fig5-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-3.png?raw=true)
 ![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
