@@ -169,6 +169,89 @@ solving dE_A / dW for `F` gives the optimum fee expression:
 
 (todo: add note for W<W_T)
 
+#### 3.2 Even Better one, charts etc. TODO
+
+The idea is to find such penalty formula where the current minimum fee would be adequate to accomodate a neutral block size increase for a single typical transaction size.
+
+from E_A = F_A - P and E_A = 0, we get
+
+P = F_min_current * (W - 1) * M.
+
+Expanding gives
+
+P_1 = (W_0 - 1) * (W - 1) * R.
+
+Note how P_1(W_T) = P_current(W_0). While this works well for the special case where W=W_T, it must also result in full penalty for W=2 with some transition between W_T and W. Simplest is to multiply W_0 in the equation with a line function f(W)=k*W+l...
+
+P_2 = (W_0 * (k * W + l) - 1) * (W - 1) * R.
+
+First we say P_old(w=2) = P_2(w=2) and solve:
+
+l = 1/(W_0)-2*k
+
+and then solve P_1(Wt) = P_2(Wt):
+
+k = (w0 - 2)/((w0-1)*(wt-2))
+
+heureka v2 :)
+
+VB Code:
+
+	Function getBlockRewardPenalty(ByVal R As Double, ByVal M As Double, ByVal W As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
+	'R - base block reward, monero
+	'M - median block size, bytes
+	'W - target expansion factor, unitless
+	'W_0 - minimum block size expansion factor, unitless
+	'T_0 - typical transaction size, bytes
+
+	'M_0 - minimum free block size, bytes
+	Dim M_0 As Double
+	M_0 = getM0()
+
+	'Correction for cases below min. free block size,
+	'ie count only what's pouring over the min. limit.
+	If M < M_0 Then
+		W = W * M / M_0
+		M = M_0
+	End If
+
+	'Block expansion factor needed to fit a single typical TX above the median
+	'W_T must be in the range <0,M>
+	Dim W_T As Double
+	W_T = 1 + T_0 / M
+
+	'Dynamic scaling parameter, unitless
+	Dim k As Double
+	k = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))
+
+	'P - block reward penalty, monero
+	Dim P As Double
+
+	'Penalty function
+	If M * W <= M_0 Then
+		P = 0
+	Else
+		If W_0 < W_T Then
+			'Transition - penalty according to the new formula
+			If W_T <= W Then
+				'Case of expanding for more than 1 tx size
+				P = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R
+			Else
+				'Case of expanding for less than 1 tx size
+				'Linear scaling of penalty at W_T down to 0
+				P = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W_T - 1) * (W_0 - 1) * R * ((W - 1) / (W_T - 1))
+			End If
+		Else
+			'Penalty according to the old formula
+			P = getBlockRewardPenaltyOld(R, M, W)
+		End If
+	End If
+
+	getBlockRewardPenalty = P
+
+	End Function
+
+
 ### 4. Wallet Fee Settings
 
 proposed multipliers 1x 4x(default) 20x 166x
@@ -182,6 +265,13 @@ proposed multipliers 1x 4x(default) 20x 166x
 ![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
 ![fig5-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-5.png?raw=true)
 ![fig5-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-6.png?raw=true)
+
+####5.2 Option 2 - make the current min.fee feasible
+
+![fig52-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-0.png?raw=true)
+![fig52-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-2.png?raw=true)
+![fig52-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-3.png?raw=true)
+![fig52-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-4.png?raw=true)
 
 ### 6. A Note on Security (fireice)
 
