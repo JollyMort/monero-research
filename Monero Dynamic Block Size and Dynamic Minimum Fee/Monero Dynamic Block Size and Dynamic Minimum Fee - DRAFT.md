@@ -16,7 +16,9 @@ Current block reward penalty is given by:
 
 `P_current = R * ((B / M) - 1) ^ 2`,
 
-where `R` is the base block reward, `B` the block size and `M` the median block size of last 100 blocks. The penalty doesn't come in effect unless `B > M_0`, where `M_0 = 60000 bytes` is the minimum penalty-free block size. Maximum allowed block size is `2 * M`, at which the full base block reward is witheld.
+where `R` is the base block reward, `B` the block size and `M` the median block size of last 100 blocks. The penalty doesn't come in effect unless `B > M_0`, where `M_0 = 60000 bytes` is the minimum penalty-free block size. Maximum allowed block size is `2 * M`, at which the full base block reward is witheld. 
+
+![fig1-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig1-0.png?raw=true)
 
 The current minimum fee has originally been given as:
 
@@ -173,12 +175,13 @@ proposed multipliers 1x 4x(default) 20x 166x
 
 ### 5. End Result
 
+![fig5-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-0.png?raw=true)
 ![fig5-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-1.png?raw=true)
 ![fig5-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-2.png?raw=true)
 ![fig5-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-3.png?raw=true)
 ![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
-[fig5-5] simulation of "cost to increase to x" before/after (TODO)
-[fig5-6] min possible fee
+![fig5-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-5.png?raw=true)
+![fig5-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-6.png?raw=true)
 
 ### 6. A Note on Security (fireice)
 
