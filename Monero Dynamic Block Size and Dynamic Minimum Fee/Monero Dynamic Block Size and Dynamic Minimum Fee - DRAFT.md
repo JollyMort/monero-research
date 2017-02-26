@@ -169,7 +169,7 @@ solving dE_A / dW for `F` gives the optimum fee expression:
 
 (todo: add note for W<W_T)
 
-#### 3.2 Even Better one, charts etc. TODO
+#### 3.2 Even Better one, tidying up etc. TODO
 
 The idea is to find such penalty formula where the current minimum fee would be adequate to accomodate a neutral block size increase for a single typical transaction size.
 
@@ -272,6 +272,8 @@ proposed multipliers 1x 4x(default) 20x 166x
 ![fig52-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-2.png?raw=true)
 ![fig52-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-3.png?raw=true)
 ![fig52-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-4.png?raw=true)
+![fig52-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-5.png?raw=true)
+![fig52-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-6.png?raw=true)
 
 ### 6. A Note on Security (fireice)
 
