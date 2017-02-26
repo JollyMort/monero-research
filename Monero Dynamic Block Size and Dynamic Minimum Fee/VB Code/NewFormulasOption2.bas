@@ -1,5 +1,7 @@
-Attribute VB_Name = "NewFormulas"
+Attribute VB_Name = "NewFormulasOption2"
 Option Explicit
+
+
 Function getBlockRewardPenalty(ByVal R As Double, ByVal M As Double, ByVal W As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
 'R - base block reward, monero
 'M - median block size, bytes
@@ -19,15 +21,12 @@ If M < M_0 Then
 End If
 
 'Block expansion factor needed to fit a single typical TX above the median
-'W_T must be in the range <0,M>
 Dim W_T As Double
 W_T = 1 + T_0 / M
 
 'Dynamic scaling parameter, unitless
-'W_T must be in the range <1,2>,
-'and it will be if T_0 is in range <0,M>.
 Dim k As Double
-k = ((W_T * (2 - W_T) + (W_0 - 2) * W_0) / ((W_T - 2) * (W_T - 1) ^ 2))
+k = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))
 
 'P - block reward penalty, monero
 Dim P As Double
@@ -39,15 +38,12 @@ Else
     If W_0 < W_T Then
         'Transition - penalty according to the new formula
         If W_T <= W Then
-            'Dynamic scaling factor (k * (W - 2) + 1) keeps the
-            'expansion price for W = W_T constant but linearly
-            'scales back to 1 for W = 2.
-            P = (k * (W - 2) + 1) * (W - 1) ^ 2 * R
+            'Case of expanding for more than 1 tx size
+            P = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R
         Else
-            'Scaling factor (k * (W - 2) + 1) fixed as if W = W_T
-            'otherwise we we would end up with negative and 0 penalties
-            'due to linear function being used.
-            P = (k * (W_T - 2) + 1) * (W - 1) ^ 2 * R
+            'Case of expanding for less than 1 tx size
+            'Linear scaling of penalty from that for 1 tx size down to 0
+            P = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R
         End If
     Else
         'Penalty according to the old formula
@@ -58,6 +54,8 @@ End If
 getBlockRewardPenalty = P
 
 End Function
+
+
 Function getNeutralFee(ByVal R As Double, ByVal M As Double, ByVal W As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
 'R - base block reward, monero
 'M - median block size, bytes
@@ -77,15 +75,12 @@ If M < M_0 Then
 End If
 
 'Block expansion factor needed to fit a single typical TX above the median
-'W_T must be in the range <0,M>
 Dim W_T As Double
 W_T = 1 + T_0 / M
 
 'Dynamic scaling parameter, unitless
-'W_T must be in the range <1,2>,
-'and it will be if T_0 is in range <0,M>.
 Dim k As Double
-k = ((W_T * (2 - W_T) + (W_0 - 2) * W_0) / ((W_T - 2) * (W_T - 1) ^ 2))
+k = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))
 
 'F_n - neutral fee, monero / byte
 Dim F_n As Double
@@ -96,9 +91,9 @@ Else
     If W_0 < W_T Then
         'Neutral fee matching new penalty formula
         If W_T <= W Then
-            F_n = (k * (W - 2) + 1) * (R / M) * (W - 1)
+            F_n = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * (R / M) * (1 / (W - 1))
         Else
-            F_n = (k * (W_T - 2) + 1) * (R / M) * (W - 1)
+            F_n = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W_T - 1) * (W_0 - 1) * (R / M) * (1 / (W_T - 1)) * ((W - 1) / (W_T - 1))
         End If
     Else
         'Neutral fee matching old penalty formula
@@ -109,6 +104,8 @@ End If
 getNeutralFee = F_n
 
 End Function
+
+
 Function getOptimumFee(ByVal R As Double, ByVal M As Double, ByVal W As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
 'R - base block reward, monero
 'M - median block size, bytes
@@ -128,15 +125,12 @@ If M < M_0 Then
 End If
 
 'Block expansion factor needed to fit a single typical TX above the median
-'W_T must be in the range <0,M>
 Dim W_T As Double
 W_T = 1 + T_0 / M
 
 'Dynamic scaling parameter, unitless
-'W_T must be in the range <1,2>,
-'and it will be if T_0 is in range <0,M>.
 Dim k As Double
-k = ((W_T * (2 - W_T) + (W_0 - 2) * W_0) / ((W_T - 2) * (W_T - 1) ^ 2))
+k = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))
 
 'F_o - optimum fee, monero / byte
 Dim F_o As Double
@@ -147,12 +141,10 @@ Else
     If W_0 < W_T Then
         'Optimum fee matching new penalty formula
         If W_T <= W Then
-            F_o = (k * (3 * W - 5) + 2) * (R / M) * (W - 1)
+            F_o = (R / M) * (k * (3 - 2 * W) + k * (2 * W - 3) * W_0 + 1)
         Else
-            'For W < W_T, there is no optimum (miner extra profit function doesn't have a maximum),
-            'and any fee greater than neutral gives incentive to fill the block at least until
-            'it is expanded to W_T.
-            F_o = getNeutralFee(R, M, W, W_0, T_0)
+            'For W < W_T, there is no optimum (miner extra profit function doesn't have a maximum).
+            F_o = 0
         End If
     Else
         'Optimum fee matching old penalty formula
@@ -163,6 +155,8 @@ End If
 getOptimumFee = F_o
 
 End Function
+
+
 Function getMinimumFee(ByVal R As Double, ByVal M As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
 'R - base block reward, monero
 'M - median block size, bytes
