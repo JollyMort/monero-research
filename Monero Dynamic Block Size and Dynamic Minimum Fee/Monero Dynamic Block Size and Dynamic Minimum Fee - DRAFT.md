@@ -141,7 +141,12 @@ The increase was not just due to the 15-fold transaction size increase, but also
 
 ### 3. Proposed Solution
 
-Trivial solution would be to increase the `M_0` to 1250kB. Another trivial solution would be to make it free to increase the block size for 1 typical transaction size above the median. This is actually in the spirit of original CryptoNote formula which gave a 10% increase for free. All of the above solutions come with the drawback that they enable some increase for free.
+Some trivial solutions can be considered first:
+
+- Increase the `M_0` to 1250kB. This would immediately reduce the min. fee and postpone using the block reward penalty until the network would grow to the point where typical transaction size will be insignificant to functioning of the dynamic formulas.
+- Make it penalty-free to increase the block size for a single typical transaction size above the median. This would be in the spirit of original CryptoNote design which gave a 10% increase for free. It would allow for steady growth while throttling the rate of it.
+
+Both of the above solutions come with the drawback that they enable some increase for free.
 
 Current formulas don't facilitate any free increases. In the same spirit, the objective of new proposals will be to make the smallest increment feasible while still keeping the network usage rational by preventing free block size expansion.
 
@@ -259,53 +264,33 @@ Undefined for `W < W_T and W_0 < W_T`,
 
 `F_o_2 = F_o_c` for `W_T <= W_0`.
 
-### 4. End Result
-
-
-#### 4.1 Impact of Fixed Minimum Feasible Fee Option
-
-![fig5-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-0.png?raw=true)
-![fig5-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-1.png?raw=true)
-![fig5-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-2.png?raw=true)
-![fig5-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-3.png?raw=true)
-![fig5-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-4.png?raw=true)
-![fig5-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-5.png?raw=true)
-![fig5-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-6.png?raw=true)
-
-#### 4.2 Impact of Feasible Current Minimum Fee Option
-
-![fig52-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-0.png?raw=true)
-![fig52-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-2.png?raw=true)
-![fig52-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-3.png?raw=true)
-![fig52-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-4.png?raw=true)
-![fig52-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-5.png?raw=true)
-![fig52-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-6.png?raw=true)
-
-### 5. Impact of Modifying The Constants
+### 4. Impact of Modifying The Constants
 
 Recall that we have defined 3 arbitrary constants:
 
 `M_0 = 60000 bytes` - Minimum free block size.
+
 `W_0 = 1.0012` - Minimum fee neutral expansion factor.
+
 `T_0 = 15000 bytes` - Typical transaction size.
 
 The minimum free block size `M_0` defines the starting point for dynamic formulas. Changing it would maintain the same shape of curves for `M_0 < M`. However, since for `M < M_0` we're acting as if `M = M_0` and `W = B / M_0` it affects the starting minimum fee as well:
 
 `F_min_c = (R / M_0) * (W_0 - 1)` for `M < M_0`.
 
-We can see that doubling the `M_0` will halve the minimum fee, but only for network states where `M < M_0`. The rest would be unaffected.
+We can see that doubling the `M_0` will halve the starting minimum fee, which will start to follow the dynamic formula at `M = M_0`. The rest would be unaffected.
 
-The minimum fee expansion factor `W_0` scales everything together. Halving the `W_0` would halve the minimum growth rate, and would halve the minimum fee for any given network state. It would also double the transition zone, ie the block size at which the formulas transition into old ones would be doubled. With this, even the old formula would be scaled since `W_0` is used as a constant in the old formulas as well.
+The minimum fee expansion factor `W_0` scales everything together. Halving the `W_0` would halve the minimum growth rate, and would halve the minimum fee for any given network state. It would also double the transition zone, ie the block size at which the penalty formula transitions into old one would be doubled. With this, even the old min. fee formula would be scaled since `W_0` is used as a constant in the old fee formula as well.
 
 The typical transaction size `T_0` affects the point at which new formulas transition into old ones. It also affects the minimum fee for any network state. Doubling it would halve the minimum fee but the post-transition growth rate with the minimum fee would remain the same. For example, if the actual typical transaction size would remain unchanged and we would only double the `T_0`, the meaning would be that, with the minimum fee, it would become feasible to add 2 transactions instead of 1 and the minimum fee per TX would be halved as well.
 
 
-### 6. Wallet Fee Settings
+### 5. Wallet Fee Settings
 
-### 7. Conclusion
+### 6. Conclusion
 
-### Appendices
+### 7. Appendices
 
-1. VB Code with Constants
-2. VB Code for Current Formulas (Excel user-defined functions)
-3. VB Code for Proposed Formulas (Excel user-defined functions)
+1. VB Code for Constants (MS Excel user-defined functions)
+2. VB Code for Current Formulas (MS Excel user-defined functions)
+3. VB Code for Proposed Formulas (MS Excel user-defined functions)
