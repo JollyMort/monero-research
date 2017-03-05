@@ -285,6 +285,10 @@ To summarize, we have:
 
 `P_n_2 = P_c` for `W_T <= W_0`.
 
+Below we can see direct comparison of the current and proposed penalty formula.
+
+![Figure 3.2-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-1.png?raw=true)
+
 With the penalty formula defined, it now remains to again find expressions for neutral and optimum fees.
 
 Solving `E_A = 0` for `F` gives the neutral fee expression:
@@ -302,6 +306,40 @@ Undefined for `W < W_T and W_0 < W_T`,
 `F_o_2 = (R / M) * (k_2 * (3 - 2 * W) + k * (2 * W - 3) * W_0 + 1)`, for `W_T <= W and W_0 < W_T`, and
 
 `F_o_2 = F_o_c` for `W_T <= W_0`.
+
+Below we can see direct comparison of the current and proposed neutral and optimum fees.
+
+![Figure 3.2-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-2.png?raw=true)
+
+Again, we will analyze impact of fee multipliers, as seen below.
+
+![Figure 3.2-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-3.png?raw=true)
+
+We see how initially, only the smallest step is avalible. As soon as the median would grow, faster growth would be enabled as long as users are willing to offer higher multipliers. Also, notice how this option looks similar to the current one, except in the zone up to the single TX size.
+
+Next, below we show the minimum cost of a single transaction.
+
+![Figure 3.2-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-4.png?raw=true)
+
+In this scenario, we can see how the cost of a single transaction remains the same as with the current min. fee formula, but now it is sufficient to enable a single typical TX to be added on top of the median. As such, the initial proposition is achieved.
+
+Furthermore, we will analyze the minimum cost of a full block.
+
+![Figure 3.2-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-5.png?raw=true)
+
+Normally, this cost is distributed among individual users. If a single actor would want to artificialy keep the block size at some median, he'd have to take this running cost alone.
+
+We can define a median increase cycle as consisting of 51 consecutive blocks with some increase. This is the minimum number of blocks to affect the median as it is calculated over the last 100 blocks. We will calculate the cost of one cycle with a minimum feasible increase, as presented below.
+
+![Figure 3.2-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-6.png?raw=true)
+
+The area below those charts will give us the cumulative cost to increase the block size from minimum free block size to some median, as seen below.
+
+![Figure 3.2-7](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.2-7.png?raw=true)
+
+We can see how with the new penalty & fee formulas, the price of growth remains nearly the same as non-RCT would be with the current formulas and at the slowest rate, and it converges to original formulas for RCT if the growth should be more rapid. It's important to note that any growth can be "reset" by a single cycle of 51 small blocks, after which some attacker would have his previous efforts to increase the block size erased and have to bear the cost all over again.
+
+This proposal would make the cost of increase to a given block size linear, same as the original formulas in ideal case.
 
 ### 4. Impact of Modifying The Constants
 
