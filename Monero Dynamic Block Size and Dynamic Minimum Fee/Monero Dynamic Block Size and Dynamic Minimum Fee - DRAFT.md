@@ -289,9 +289,9 @@ With the penalty formula defined, it now remains to again find expressions for n
 
 Solving `E_A = 0` for `F` gives the neutral fee expression:
 
-`F_n_2 = (k_2 * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * (R / M) * (1 / (W_T - 1))`, for `W < W_T and W_0 < W_T`,
+`F_n_2 = (k_2 * (W_T - 2) + 1 / (W_0 - 1)) * (W_0 - 1) * (R / M)`, for `W < W_T and W_0 < W_T`,
 
-`F_n_2 = (k_2 * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * (R / M) * (1 / (W - 1))`, for `W_T <= W and W_0 < W_T`, and
+`F_n_2 = (k_2 * (W - 2) + 1 / (W_0 - 1)) * (W_0 - 1) * (R / M)`, for `W_T <= W and W_0 < W_T`, and
 
 `F_n_2 = F_n_c` for `W_T <= W_0`.
 
@@ -299,7 +299,7 @@ Solving dE_A / dW for `F` gives the optimum fee expression:
 
 Undefined for `W < W_T and W_0 < W_T`,
 
-`F_o_2 = (R / M) * (k_2 * (3 - 2 * W) + k_2 * (2 * W - 3) * W_0 + 1)`, for `W_T <= W and W_0 < W_T`, and
+`F_o_2 = (R / M) * (k_2 * (3 - 2 * W) + k * (2 * W - 3) * W_0 + 1)`, for `W_T <= W and W_0 < W_T`, and
 
 `F_o_2 = F_o_c` for `W_T <= W_0`.
 

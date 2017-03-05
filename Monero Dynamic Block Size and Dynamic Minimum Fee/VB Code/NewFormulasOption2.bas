@@ -38,11 +38,8 @@ Else
     If W_0 < W_T Then
         'Transition - penalty according to the new formula
         If W_T <= W Then
-            'Case of expanding for more than 1 tx size
             P = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R
         Else
-            'Case of expanding for less than 1 tx size
-            'Linear scaling of penalty from that for 1 tx size down to 0
             P = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R
         End If
     Else
@@ -91,9 +88,9 @@ Else
     If W_0 < W_T Then
         'Neutral fee matching new penalty formula
         If W_T <= W Then
-            F_n = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * (R / M) * (1 / (W - 1))
+            F_n = (k * (W - 2) + 1 / (W_0 - 1)) * (W_0 - 1) * (R / M)
         Else
-            F_n = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W_T - 1) * (W_0 - 1) * (R / M) * (1 / (W_T - 1)) * ((W - 1) / (W_T - 1))
+            F_n = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W_0 - 1) * (R / M)
         End If
     Else
         'Neutral fee matching old penalty formula
@@ -104,8 +101,6 @@ End If
 getNeutralFee = F_n
 
 End Function
-
-
 Function getOptimumFee(ByVal R As Double, ByVal M As Double, ByVal W As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
 'R - base block reward, monero
 'M - median block size, bytes
@@ -144,7 +139,7 @@ Else
             F_o = (R / M) * (k * (3 - 2 * W) + k * (2 * W - 3) * W_0 + 1)
         Else
             'For W < W_T, there is no optimum (miner extra profit function doesn't have a maximum).
-            F_o = 0
+            F_o = getNeutralFee(R, M, W, W_0, T_0)
         End If
     Else
         'Optimum fee matching old penalty formula
@@ -155,8 +150,6 @@ End If
 getOptimumFee = F_o
 
 End Function
-
-
 Function getMinimumFee(ByVal R As Double, ByVal M As Double, ByVal W_0 As Double, ByVal T_0 As Double) As Double
 'R - base block reward, monero
 'M - median block size, bytes
@@ -170,7 +163,6 @@ M_0 = getM0()
 If M <= M_0 Then M = M_0
 
 'Block expansion factor needed to fit a single typical TX above the median
-'W_T must be in the range <0,M>
 Dim W_T As Double
 W_T = 1 + T_0 / M
 
