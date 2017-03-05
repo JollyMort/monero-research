@@ -232,7 +232,7 @@ Furthermore, we will analyze the minimum cost of a full block.
 
 Normally, this cost is distributed among individual users. If a single actor would want to artificialy keep the block size at some median, he'd have to take this running cost alone.
 
-We can define a median increase cycle as consisting of 51 consecutive blocks with some increase. This is the minimum number of blocks to affect the median. We will calculate the cost of one cycle with a minimum feasible increase, as presented below.
+We can define a median increase cycle as consisting of 51 consecutive blocks with some increase. This is the minimum number of blocks to affect the median as it is calculated over the last 100 blocks. We will calculate the cost of one cycle with a minimum feasible increase, as presented below.
 
 ![Figure 3.1-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-6.png?raw=true)
 
@@ -279,9 +279,9 @@ k_2 = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2)).
 
 To summarize, we have:
 
-`P_n_2 = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R` for `W < W_T and W_0 < W_T`, 
+`P_n_2 = (k_2 * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R` for `W < W_T and W_0 < W_T`, 
 
-`P_n_2 = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R` for `W_T <= W and W_0 < W_T`, and
+`P_n_2 = (k_2 * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R` for `W_T <= W and W_0 < W_T`, and
 
 `P_n_2 = P_c` for `W_T <= W_0`.
 
