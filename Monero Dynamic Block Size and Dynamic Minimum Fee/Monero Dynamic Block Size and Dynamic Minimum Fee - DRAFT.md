@@ -48,9 +48,16 @@ We will also define additional miner earnings as
 
 `E_A = F_A - P`.
 
-Substituting with `W = B / M` and solving `E_A = 0` for `F`, we find
+Substituting with `W = B / M` we can re-write the penalty formula as
 
-`F_n_c = (R / M) * (W - 1)`,
+`P_c = R * (W - 1) ^ 2`, and additional reward from fees as
+
+`F_A = F * (W - 1) * M`.
+
+
+Solving `E_A = 0` for `F`, we find
+
+`F_n_c = (R / M) * (W - 1)`, 
 
 which is the fee required to make an expansion of the block size to `B = W * M` neutral to miner earnings, as doing so would yield the same total block reward for the miner as would mining a block of the size `B = M` with transaction fees of `F_n_c`.
 While the miner doesn't lose anything compared to the base case, there is a missed opportunity because he could opt for some optimal increase `M < W_o * M < W_n * M` which would give him the biggest reward.
@@ -69,9 +76,16 @@ Solving `dE_A / dW = 0` for `F` gives
 
 Which shows a linear relationship between the transaction fee and optimum block size increase.
 
-To present the impact of different fee multipliers on neutral and optimum block size expansions, we will substitute the fee with a multiplier of the minimum fee
-`F = F_min_c * F_mul_c`,
+It has to be noted that the case for `M < M_0` requires special attention. As we're penalizing only what goes over the minimum free block size then the actual median should be replaced with `M_0` in all the formulas. This means that for `M < M_0` we should redefine M and W as
 
+W := B / M_0, and
+M := M_0, and
+
+then continue as usual.
+
+To present the impact of different fee multipliers on neutral and optimum block size expansions, we will substitute the fee with a multiplier of the minimum fee
+
+`F = F_min_c * F_mul_c`,
 
 and plug it into the neutral and optimum fee equations. Rearranging gives
 
@@ -127,9 +141,11 @@ The increase was not just due to the 15-fold transaction size increase, but also
 
 ### 3. Proposed Solution
 
-The objective will be to make the smallest increment feasible, while still keeping the network usage rational by preventing free block size expansion.
+Trivial solution would be to increase the `M_0` to 1250kB. Another trivial solution would be to make it free to increase the block size for 1 typical transaction size above the median. This is actually in the spirit of original CryptoNote formula which gave a 10% increase for free. All of the above solutions come with the drawback that they enable some increase for free.
 
-## 3.1 Fixed Minimum Feasible Fee
+Current formulas don't facilitate any free increases. In the same spirit, the objective of new proposals will be to make the smallest increment feasible while still keeping the network usage rational by preventing free block size expansion.
+
+## 3.1 Fixed Minimum Feasible Fee Option
 
 The idea is to scale down the penalty formula such that the neutral fee to add a single typical transaction above the median remains constant up to the point where it would mean a 1.2% block size increase. From there, the original formulas would kick in again. However, full penalty must still be incurred for a 100% increase.
 
@@ -185,7 +201,7 @@ Undefined for `W < W_T and W_0 < W_T`,
 `F_o_1 = (k_1 * (3 * W - 5) + 2) * (R / M) * (W - 1)`, for `W_T <= W and W_0 < W_T`, and
 `F_o_1 = F_o_c` for `W_T <= W_0`.
 
-#### 3.2 Feasible Current Minimum Fee
+#### 3.2 Feasible Current Minimum Fee Option
 
 The idea is to find such penalty formula where the current minimum fee would be adequate to accomodate a neutral block size increase for a single typical transaction size.
 
@@ -217,13 +233,36 @@ The other requirement is `P_{2-3}(W := W_T) = P_{2-0}, and solving that equation
 
 k_2 = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2)).
 
+To summarize, we have:
+
+`P_n_2 = (k * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R` for `W < W_T and W_0 < W_T`, 
+
+`P_n_2 = (k * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * R` for `W_T <= W and W_0 < W_T`, and
+
+`P_n_2 = P_c` for `W_T <= W_0`.
+
+With the penalty formula defined, it now remains to again find expressions for neutral and optimum fees.
+
+Solving `E_A = 0` for `F` gives the neutral fee expression:
+
+`F_n_2 = (k_2 * (W_T - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * (R / M) * (1 / (W_T - 1))`, for `W < W_T and W_0 < W_T`,
+
+`F_n_2 = (k_2 * (W - 2) + 1 / (W_0 - 1)) * (W - 1) * (W_0 - 1) * (R / M) * (1 / (W - 1))`, for `W_T <= W and W_0 < W_T`, and
+
+`F_n_2 = F_n_c` for `W_T <= W_0`.
+
+Solving dE_A / dW for `F` gives the optimum fee expression:
+
+Undefined for `W < W_T and W_0 < W_T`,
+
+`F_o_2 = (R / M) * (k_2 * (3 - 2 * W) + k_2 * (2 * W - 3) * W_0 + 1)`, for `W_T <= W and W_0 < W_T`, and
+
+`F_o_2 = F_o_c` for `W_T <= W_0`.
+
+### 4. End Result
 
 
-### 4. Wallet Fee Settings
-
-proposed multipliers 1x 4x(default) 20x 166x
-
-### 5. End Result
+#### 4.1 Impact of Fixed Minimum Feasible Fee Option
 
 ![fig5-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-0.png?raw=true)
 ![fig5-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-1.png?raw=true)
@@ -233,7 +272,7 @@ proposed multipliers 1x 4x(default) 20x 166x
 ![fig5-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-5.png?raw=true)
 ![fig5-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig5-6.png?raw=true)
 
-####5.2 Option 2 - make the current min.fee feasible
+#### 4.2 Impact of Feasible Current Minimum Fee Option
 
 ![fig52-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-0.png?raw=true)
 ![fig52-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/52-2.png?raw=true)
@@ -242,15 +281,28 @@ proposed multipliers 1x 4x(default) 20x 166x
 ![fig52-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-5.png?raw=true)
 ![fig52-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig52-6.png?raw=true)
 
-### 6. A Note on Security (fireice)
+### 5. Impact of Modifying The Constants
 
-regarding penalty / min. fee safe implementation?
+Recall that we have defined 3 arbitrary constants:
 
-### 7. A Note on Privacy (fireice)
+`M_0 = 60000 bytes` - Minimum free block size.
+`W_0 = 1.0012` - Minimum fee neutral expansion factor.
+`T_0 = 15000 bytes` - Typical transaction size.
 
-regarding multipliers 1x 4x(default) 20x 166x? fyi, right now it's 1x,20x,166x iirc
+The minimum free block size `M_0` defines the starting point for dynamic formulas. Changing it would maintain the same shape of curves for `M_0 < M`. However, since for `M < M_0` we're acting as if `M = M_0` and `W = B / M_0` it affects the starting minimum fee as well:
 
-### 8. Conclusion
+`F_min_c = (R / M_0) * (W_0 - 1)` for `M < M_0`.
+
+We can see that doubling the `M_0` will halve the minimum fee, but only for network states where `M < M_0`. The rest would be unaffected.
+
+The minimum fee expansion factor `W_0` scales everything together. Halving the `W_0` would halve the minimum growth rate, and would halve the minimum fee for any given network state. It would also double the transition zone, ie the block size at which the formulas transition into old ones would be doubled. With this, even the old formula would be scaled since `W_0` is used as a constant in the old formulas as well.
+
+The typical transaction size `T_0` affects the point at which new formulas transition into old ones. It also affects the minimum fee for any network state. Doubling it would halve the minimum fee but the post-transition growth rate with the minimum fee would remain the same. For example, if the actual typical transaction size would remain unchanged and we would only double the `T_0`, the meaning would be that, with the minimum fee, it would become feasible to add 2 transactions instead of 1 and the minimum fee per TX would be halved as well.
+
+
+### 6. Wallet Fee Settings
+
+### 7. Conclusion
 
 ### Appendices
 
