@@ -40,7 +40,7 @@ Recall
  
 `P_c = R * ((B / M) - 1) ^ 2`, and define
 
-`F_A = M * F - B * F = F * (M - B)`,
+`F_A = B * F - M * F = F * (B - M)`,
 
 where `F_A` is the additional reward from fees should the block be expanded to a size of `B` and filled with transactions paying transaction fee `F`.
 
