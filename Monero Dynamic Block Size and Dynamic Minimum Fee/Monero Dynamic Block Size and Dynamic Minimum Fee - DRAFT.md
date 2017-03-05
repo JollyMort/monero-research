@@ -18,7 +18,7 @@ Current block reward penalty is given by:
 
 where `R` is the base block reward, `B` the block size and `M` the median block size of the last 100 blocks. The penalty doesn't come in effect unless `B > M_0`, where `M_0 = 60000 bytes` is the minimum penalty-free block size. Maximum allowed block size is `2 * M`, at which the full base block reward is witheld. 
 
-![fig1-0](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig1-0.png?raw=true)
+![Figure 1-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig1-1.png?raw=true)
 
 The current minimum fee has originally been given as:
 
@@ -93,11 +93,11 @@ and plug it into the neutral and optimum fee equations. Rearranging gives
 
 `F_mul_c = 2  * (W - 1) / (W_0 - 1)` for the optimum fee.
 
-![fig1-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig1-1.png?raw=true)
+![Figure 1-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig1-2.png?raw=true)
 
 We will further examine miner incentives by plotting the relationship between block size increase and additional miner earnings for various fee multipliers. On the same chart, we will show the optimum curve which connects the min. fee multiplier curve maximums.
 
-![fig1-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig1-2.png?raw=true)
+![Figure 1-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig1-3.png?raw=true)
 
 We see that each fee multiplier curve has one point of maximum earnings for the miner. Another interesting point is the 2nd crossing with the horizontal axis, at which the miner would earn the same total by increasing the block size as he would if he mined a block with 0% expansion.
 
@@ -121,11 +121,11 @@ We can define the set of feasible block size expansions as `W_f = {1 + T_0 / M, 
 
 The minimum feasible expansion factor `W_T` changes either with changing the `T_0` as part of protocol change affecting typical transaction sizes, or with the median block size `M` as a consequence of network state. It also defines feasible block size increase steps. Below we will examine the case for `T_0` of 1kB and 15kB as typical sizes of non-RCT and RCT transactions.
 
-![fig2-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-1.png?raw=true)
+![Figure 2-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig2-1.png?raw=true)
 
 Above we see how the jump in transaction sizes has created a barrier to expanding the block sizes smoothly. We also see how this is eased once the median grows big enough as discrete steps become denser. This can also be seen on the chart below.
 
-![fig2-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-2.png?raw=true)
+![Figure 2-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig2-2.png?raw=true)
 
 Pre-RCT, the first step was at 1.67% increase with neutral multiplier of 1.93, and post-RCT it is at 25% increase with neutral multiplier of xx. In addition, the fee / TX has jumped 15-fold. If somehow the network should adjust to a state of bigger block size, the discrete steps would become more dense and allow for smoother changes. The problem is in getting to that state in the first place.
 
@@ -133,7 +133,7 @@ As the blocks expand, optimum steps for smaller multipliers will become feasible
 
 Below we show the difference between ideal steady growth and currently feasible one for both RCT and non-RCT transactions, with different scenarios based on relationship between block size and market price.
 
-![fig2-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/fig2-3.png?raw=true)
+![Figure 2-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig2-3.png?raw=true)
 
 As seen above, the smallest feasible min. fee is at xx$ for RCT and 0.03$ for non-RCT. With such a price, there's a real danger of hindering adoption and preventing transition into a state where steady growth is feasible.
 
@@ -192,6 +192,10 @@ To summarize, we have:
 `P_n_1 = (k_1 * (W - 2) + 1) * (W - 1) ^ 2 * R` for `W_T <= W and W_0 < W_T`, and
 `P_n_1 = P_c` for `W_T <= W_0`.
 
+Below we can see direct comparison of the current and proposed penalty formula.
+
+![Figure 3.1-1](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-1.png?raw=true)
+
 With the penalty formula defined, it now remains to again find expressions for neutral and optimum fees.
 
 Solving `E_A = 0` for `F` gives the neutral fee expression:
@@ -205,6 +209,41 @@ Solving dE_A / dW for `F` gives the optimum fee expression:
 Undefined for `W < W_T and W_0 < W_T`,
 `F_o_1 = (k_1 * (3 * W - 5) + 2) * (R / M) * (W - 1)`, for `W_T <= W and W_0 < W_T`, and
 `F_o_1 = F_o_c` for `W_T <= W_0`.
+
+Below we can see direct comparison of the current and proposed neutral and optimum fees.
+
+![Figure 3.1-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-2.png?raw=true)
+
+Again, we will analyze impact of fee multipliers, as seen below.
+
+![Figure 3.1-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-3.png?raw=true)
+
+We see how initially, only the smallest step is avalible. As soon as the median would grow, faster growth would be enabled as long as users are willing to offer higher multipliers.
+
+Next, below we show the minimum cost of a single transaction.
+
+![Figure 3.1-4](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-4.png?raw=true)
+
+In this scenario, we can see how throughout the transition the cost of a single transaction remains flat if the market price is unchanged. As such, the initial proposition is achieved.
+
+Furthermore, we will analyze the minimum cost of a full block.
+
+![Figure 3.1-5](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-5.png?raw=true)
+
+Normally, this cost is distributed among individual users. If a single actor would want to artificialy keep the block size at some median, he'd have to take this running cost alone.
+
+We can define a median increase cycle as consisting of 51 consecutive blocks with some increase. This is the minimum number of blocks to affect the median. We will calculate the cost of one cycle with a minimum feasible increase, as presented below.
+
+![Figure 3.1-6](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-6.png?raw=true)
+
+The area below those charts will give us the cumulative cost to increase the block size from minimum free block size to some median, as seen below.
+
+![Figure 3.1-7](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig3.1-7.png?raw=true)
+
+We can see how with the new penalty & fee formulas, the growth becomes cheaper at lower rates, and it converges to original formulas if the growth should be more rapid. It's important to note that any growth can be "reset" by a single cycle of 51 small blocks, after which some attacker would have his previous efforts to increase the block size erased.
+
+This proposal would give a nearly free ride to about 0.5MB block size, while nearly halving the cumulative cost to reach the transition point. This may not be desireable, and a second option is proposed below.
+
 
 #### 3.2 Feasible Current Minimum Fee Option
 
