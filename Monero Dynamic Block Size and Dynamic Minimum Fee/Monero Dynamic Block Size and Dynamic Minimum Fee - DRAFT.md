@@ -76,10 +76,10 @@ Solving `dE_A / dW = 0` for `F` gives
 
 Which shows a linear relationship between the transaction fee and optimum block size increase.
 
-It has to be noted that the case for `M < M_0` requires special attention. As we're penalizing only what goes over the minimum free block size then the actual median should be replaced with `M_0` in all the formulas. This means that for `M < M_0` we should redefine M and W as
+It has to be noted that the case for `M < M_0` requires special attention. As we're penalizing only what goes over the minimum free block size then the actual median should be replaced with `M_0` in all the formulas. This means that for `M < M_0` we should redefine `M` and `W` as
 
-W := B / M_0, and
-M := M_0, and
+`W := B / M_0`, and
+`M := M_0`, and
 
 then continue as usual.
 
@@ -127,7 +127,7 @@ Above we see how the jump in transaction sizes has created a barrier to expandin
 
 ![Figure 2-2](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig2-2.png?raw=true)
 
-Pre-RCT, the first step was at 1.67% increase with neutral multiplier of 1.93, and post-RCT it is at 25% increase with neutral multiplier of xx. In addition, the fee / TX has jumped 15-fold. If somehow the network should adjust to a state of bigger block size, the discrete steps would become more dense and allow for smoother changes. The problem is in getting to that state in the first place.
+Pre-RCT, the first step was at 1.67% increase with neutral multiplier of 1.39, and post-RCT it is at 25% increase with neutral multiplier of 20.33. In addition, the min. fee per TX has jumped 15-fold. If somehow the network should adjust to a state of bigger block size, the discrete steps would become more dense and allow for smoother changes. The problem is in getting to that state in the first place.
 
 As the blocks expand, optimum steps for smaller multipliers will become feasible. With the current formulas, the median block size should be at `M = 1250kB` to make the neutral step with the minimum fee available or `M = 2500kB` to make the optimum step for the minimum fee available. This problem was actually present pre-RCT but with RCT it became more severe.
 
@@ -135,9 +135,9 @@ Below we show the difference between ideal steady growth and currently feasible 
 
 ![Figure 2-3](https://github.com/JollyMort/monero-research/blob/master/Monero%20Dynamic%20Block%20Size%20and%20Dynamic%20Minimum%20Fee/Images/Fig2-3.png?raw=true)
 
-As seen above, the smallest feasible min. fee is at xx$ for RCT and 0.03$ for non-RCT. With such a price, there's a real danger of hindering adoption and preventing transition into a state where steady growth is feasible.
+As seen above, the smallest feasible min. fee is at 6.91$ for RCT and 0.03$ for non-RCT. With such a price, there's a real danger of hindering adoption and preventing transition into a state where steady growth is feasible.
 
-The increase was not just due to the 15-fold transaction size increase, but also due to the penalty increase as adding a bigger transaction requires a bigger relative block size increase, so the price per TX actually increased 225 times!
+The dramatic increase in price per TX was not just due to the 15-fold transaction size increase, but also due to the penalty increase as adding a bigger transaction requires a bigger relative block size increase, and causes a bigger penalty. Because of this, the cost of first feasible increase step became 219 times more expensive for the end user than pre-RCT!
 
 ### 3. Proposed Solution
 
@@ -182,14 +182,16 @@ Solving for `k_1` gives
 
 The new penalty formula will be valid while the condition `W_0 < W_T` holds. For `W_T <= W_0`, the original penalty calculation will be used. The point where `W_T = W_0` will give the same penalty, regardless of which expression is used because `k_1 = 0` for that case.
 
-Case where W < W_T requires special attention as the penalty would reach 0 at some 0 < W < W_T. To address this, we can simply lock the scaling factor as below:
+Case where `W < W_T` requires special attention as the penalty would reach 0 at some `0 < W < W_T`. To address this, we can simply lock the scaling factor as below:
 
 `P_n_1 = (k_1 * (W_T - 2) + 1) * (W - 1) ^ 2 * R` for `W < W_T and W_0 < W_T`.
 
 To summarize, we have:
 
 `P_n_1 = (k_1 * (W_T - 2) + 1) * (W - 1) ^ 2 * R` for `W < W_T and W_0 < W_T`, 
+
 `P_n_1 = (k_1 * (W - 2) + 1) * (W - 1) ^ 2 * R` for `W_T <= W and W_0 < W_T`, and
+
 `P_n_1 = P_c` for `W_T <= W_0`.
 
 Below we can see direct comparison of the current and proposed penalty formula.
@@ -201,13 +203,17 @@ With the penalty formula defined, it now remains to again find expressions for n
 Solving `E_A = 0` for `F` gives the neutral fee expression:
 
 `F_n_1 = (k_1 * (W_T - 2) + 1) * (R / M) * (W - 1)`, for `W < W_T and W_0 < W_T`,
+
 `F_n_1 = (k_1 * (W - 2) + 1) * (R / M) * (W - 1)`, for `W_T <= W and W_0 < W_T`, and
+
 `F_n_1 = F_n_c` for `W_T <= W_0`.
 
 Solving dE_A / dW for `F` gives the optimum fee expression:
 
 Undefined for `W < W_T and W_0 < W_T`,
+
 `F_o_1 = (k_1 * (3 * W - 5) + 2) * (R / M) * (W - 1)`, for `W_T <= W and W_0 < W_T`, and
+
 `F_o_1 = F_o_c` for `W_T <= W_0`.
 
 Below we can see direct comparison of the current and proposed neutral and optimum fees.
@@ -251,11 +257,11 @@ The idea is to find such penalty formula where the current minimum fee would be 
 
 From `E_A = F_A - P`, `E_A = 0`, `W = W_T` and `F = F_min_c` we get
 
-P_{2-0} = F_min_c * (W_T - 1) * M.
+`P_{2-0} = F_min_c * (W_T - 1) * M`.
 
 Expanding gives
 
-P_{2-0} = (W_0 - 1) * (W_T - 1) * R.
+`P_{2-0} = (W_0 - 1) * (W_T - 1) * R`.
 
 This is a requirement to satisfy the initial proposition. Whatever the penalty function is, the result for `W = W_T` must equal the above `P_{2-0}`.
 
@@ -265,17 +271,17 @@ The function
 
 one which would satisfy that requirement. While that would work well for the special case where `W = W_0`, it must also scale up to the full penalty for `W = 2`.
 
-Another solution is to multiply `W_0` in the `P_{2-0}` expression with some linear function `f(W)= k * W + l`, and replace the `W_T` term with `W`. This would again make the resulting function quadratic:
+One solution is to multiply `W_0` in the `P_{2-0}` expression with some linear function `f(W)= k * W + l`, and replace the `W_T` term with `W`. This would again make the resulting function quadratic:
 
-`P_{2-3} = (W_0 * (k_2 * W + l_2) - 1) * (W - 1) * R`.
+`P_{2-2} = (W_0 * (k_2 * W + l_2) - 1) * (W - 1) * R`.
 
-As mentioned above, it must satisfy the requirement `P_{2-3}(W := 2) = P_c(W := 2)` and solving that equation gives
+As mentioned above, it must satisfy the requirement `P_{2-2}(W := 2) = P_c(W := 2)` and solving that equation gives
 
 `l_2 = 2 / W_0 - 2 * k`.
 
-The other requirement is `P_{2-3}(W := W_T) = P_{2-0}, and solving that equation gives
+The other requirement is `P_{2-2}(W := W_T) = P_{2-0}`, and solving that equation gives
 
-k_2 = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2)).
+`k_2 = ((W_0 - 1) - 1) / ((W_0 - 1) * (W_T - 2))`.
 
 To summarize, we have:
 
@@ -299,7 +305,7 @@ Solving `E_A = 0` for `F` gives the neutral fee expression:
 
 `F_n_2 = F_n_c` for `W_T <= W_0`.
 
-Solving dE_A / dW for `F` gives the optimum fee expression:
+Solving `dE_A / dW` for `F` gives the optimum fee expression:
 
 Undefined for `W < W_T and W_0 < W_T`,
 
@@ -359,10 +365,23 @@ We can see that doubling the `M_0` will halve the starting minimum fee, which wi
 
 The minimum fee expansion factor `W_0` scales everything together. Halving the `W_0` would halve the minimum growth rate, and would halve the minimum fee for any given network state. It would also double the transition zone, ie the block size at which the penalty formula transitions into old one would be doubled. With this, even the old min. fee formula would be scaled since `W_0` is used as a constant in the old fee formula as well.
 
-The typical transaction size `T_0` affects the point at which new formulas transition into old ones. It also affects the minimum fee for any network state. Doubling it would halve the minimum fee but the post-transition growth rate with the minimum fee would remain the same. For example, if the actual typical transaction size would remain unchanged and we would only double the `T_0`, the meaning would be that, with the minimum fee, it would become feasible to add 2 transactions instead of 1 and the minimum fee per TX would be halved as well.
+The typical transaction size `T_0` affects the point at which new formulas transition into old ones and the way penalty is discounted. Doubling it would enable a block size increase for 2 TX with the minimum fee, if the actual typical transaction size would remain unchanged.
 
 
-### 5. Wallet Fee Settings
+### 5. Recommended Change
+
+The option of keeping the current min. fee formula is seen as preferred since it would not significantly impact cost of expansion when compared to pre-RCT situation. As described previously, the price of first feasible step would then be discounted such that it's achievable with the current minimum fee. which is currently at around 0.29$/TX.
+
+This could be seen as an already high fee, since for Bitcoin it took some significant transaction pressure for fees to build up to 0.29$/TX. In contrast, Monero fees are 0.29$/TX just because it is arbitrarily set as such. It could be argued that something called a minimum should be some level below what an user is willing to pay by default.
+
+Currently, the wallet uses the minimum fee as the default, and offers multipliers of x20 and x166 as tools to give transacions priority. An additional multiplier of x4 is proposed to be added and set as the default. To keep the default fee the same as it is now, we'd need to lower the minimum fee by a factor of 4. We can do this by increasing the min. free block size to `M_0 = 120kB`, which would reduce the minimum fee by a factor of 2. Considering that in the next HF it is planned to optimize RCT range proofs and the transaction size could be halved, that would give it another factor of 2. If it will be less, then the `M_0` could be increased proportionally more to get a factor of 4 overall:
+
+M_0 = 120kB * (7500 bytes / T_0).
+
+With a 50% reduction in TX size we get `T_0 = 7500 bytes` and M_0 = 120kB, and
+with 0% reduction in TX size we'd get `T_0 = 15000 bytes` and M_0 = 240kB.
+
+This would allow the network to fit 16 typical transactions in a single block, as opposed to 4-5 as it is now. It would reduce the fee required to expand the blocks to 17 transactions, and would give users the option to reduce the fee paid in case of market price shocks.
 
 ### 6. Conclusion
 
