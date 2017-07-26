@@ -1,0 +1,934 @@
+(IRC) left the room.
+K
+knaccc (IRC)
+https://github.com/monero-project/monero/pull/2056#issuecomment-317950362
+
+[Reviewed, but DON'T MERGE YET] Subaddresses by kenshi84 · Pull Request #2056 · monero-project/monero - GitHub
+Note: This PR replaces #1753. Most importantly, the idea of disposable addresses was dropped, due to its potential danger of being misused by uneducated users which leads to on-chain tx linkability...
+scheme for sending to multiple integrated addresses, unencrypted payment id destinations, and multiple subaddresses in a single transaction instead of across 6 transactions
+oops
+i meant
+https://github.com/monero-project/monero/pull/2056#issuecomment-318013781
+
+[Reviewed, but DON'T MERGE YET] Subaddresses by kenshi84 · Pull Request #2056 · monero-project/monero - GitHub
+Note: This PR replaces #1753. Most importantly, the idea of disposable addresses was dropped, due to its potential danger of being misused by uneducated users which leads to on-chain tx linkability...
+moneromooo oh i think i may have misunderstood your github comment
+i think you're not just referring to the nonce field, but in general the idea of preserving backwards compatibility by using the original fields plus additional fields?
+i'm not sure why you'd want to break backwards compatibiltiy
+i'm confused :)
+M
+moneromooo (IRC)
+I do not want to break backward compatibility, but I do not want new stuff using payment id either.
+Unless it turns out to be more pita than not I guess.
+L
+luigi1111 (IRC)
+death to payment id
+K
+knaccc (IRC)
+moneromooo i'm not exactly clear about what you mean, because i didn't realize encrypted payment ids were considered deprecated
+especially since there is actually an integrated subaddress format that preserves the ability to use an encrtypted payment id
+M
+moneromooo (IRC)
+They are not considered deprecated, but given we're going to have subaddresses, I'd like to see them deprecated :)
+K
+knaccc (IRC)
+are you saying you'd prefer to drop the concept of integrated subaddresses too, and only have regular subaddresses?
+M
+moneromooo (IRC)
+But you're right this should be discussed first anyway.
+K
+knaccc (IRC)
+moneromooo i think there is a strong use case for payment ids
+M
+moneromooo (IRC)
+I'd rather move to a larger, per output range proof, message.
+K
+knaccc (IRC)
+which is, e.g. an ecommerce site that does not force you to go through checkout and displays a payment QR code against everything you look at
+and then that's only possible if you either 1. have a subaddress per item and a shared counter
+or 2. have a random number generator for each QR code generated, requiring no coordination between webapp servers
+maybe i've not fully considered whether 2^64 is large enough to avoid random collisions in this use case
+M
+moneromooo (IRC)
+luigi1111 repeatedly said it should be enough.
+50% chance at 2 billion items I think.
+K
+knaccc (IRC)
+oh ok cool
+M
+moneromooo (IRC)
+Don't quote me on that, though.
+K
+knaccc (IRC)
+moneromooo the only potential problem with migrating payment ids to the range proof is that the range proof is prunable
+L
+luigi1111 (IRC)
+4b
+or 5b
+2^32 * 1.3
+or something
+K
+knaccc (IRC)
+anyway, good thing this has been brought up, i didn't realize there was a debate over whether to keep encrypted payments ids in the txextra field
+M
+moneromooo (IRC)
+What's the 1.3 ?
+Oh, good point knaccc.
+L
+luigi1111 (IRC)
+just a factor I made up
+M
+moneromooo (IRC)
+And there was no debate, I just said it a few minutes ago :)
+K
+knaccc (IRC)
+hehe
+M
+moneromooo (IRC)
+I just don't like payment ids much.
+K
+knaccc (IRC)
+what's the reasoning?
+M
+moneromooo (IRC)
+I don't think anybodu really does.
+Nothing really well defined right now. I just don't like them much.
+K
+knaccc (IRC)
+i guess from a privacy perspective it does make some transactions stand out from others
+i think i actually suggested at one point putting a dummy encrypted payment id on all transactions, even if the user didn't specify one
+s/even//
+M
+moneromooo (IRC)
+Gross :)
+K
+knaccc (IRC)
+hehe
+now i think about it moneromooo, i've suddenly developed a distaste for payment ids too
+what'd be nicer is an integrated address format which specifies a payload that would be transmitted via the range proof, where that payload does not restrict you to a 64 bit number
+so that payload could be your email address and order description
+which means people wouldn't need clever web sites to sell stuff that tracked checkout transactions against payment ids
+instead they'd just list an integrated address that contained the purchase information, user's email address for a receipt, etc all in the link that launched the monero wallet
+M
+moneromooo (IRC)
+That would be good. FWIW, the payment URI thing could easily include that.
+There is a comment field IIRC, but not intended to be reflected to the recipient I think.
+K
+knaccc (IRC)
+this would make accepting xmr payments on any web site astonishinly simple
+you'd just have a static web site with a bit of javascript that asked for your email address and shipping address and bundled it into the monero uri it then displayed for you to use to pay
+and then the person receiving the payment would have all the necessary information to process the purchase, without having to cross reference anything
+L
+luigi1111 (IRC)
+sounds nice
+K
+knaccc (IRC)
+so now we've established we all hate encrypted payment ids, do we want to give users the ability to send to more than one integrated address in a single transaction, to save them from wasting blockchain space on additional change outputs
+L
+luigi1111 (IRC)
+I don't think we established that
+M
+moneromooo (IRC)
+I do not hate them, I just don't like them. I'm fine with them staying.
+I just don't want a new extra chunk for multiple payment ids.
+Though I could be convinced to.
+L
+luigi1111 (IRC)
+no need with range proofs anyway
+though, kinda mucks with pruned refreshing
+might need rethinking a bit
+K
+knaccc (IRC)
+moneromooo if the extra chunk for multiple payment ids is not implemented, it'd mean you could send to multiple subaddresses in a single transaction, but you could not send to multiple integrated subaddresses in a single transaction
+and of course note that if there are not multiple subaddresses or multiple integrated addresses, those "additional" fields never appear at all anyway
+imagine the confusion in the GUI wallet, if when sending to multiple people in the same transaction, the wallet would have to explain that some addresses are different to other addresses, point out to you which addresses are integrated, and then ask you to send funds to those addresses separately in individual transactions
+consistency would seem to make a case for allowing the additional integrated address chunk, unless we were looking to make a strong point that integrated addresses are deprecated
+so the question is, if/when they should be considered deprecated
+BB
+bitbee (IRC) joined the room.
+S
+suraeNoether (IRC)
+good morning everyone
+can i just say how much I hate doctors, and how much I love hash functions, and in no particular order?
+J
+jwinterm (IRC)
+what about people with a doctorate in hash functions?
+dr. hash, if you will
+S
+suraeNoether (IRC)
+dr. hash, he lives in denver
+he's like, right down my street
+he listens to a lot of reggae
+JJ
+jwinterm (IRC)
+he'll soon be imprisoned by jefferson beuaregard sessions III
+S
+suraeNoether (IRC)
+in Soviet America, Dr. Hash imprisons Attorneys General?
+this conversation got weird
+so, looking into hash-based nizk proofs of knowledge
+so, i feel totally stupid right now, because
+with bilinear pairings based cryptography, it's very very simple to construct a NIWI proof that a certain commitment is committed to a certain value
+i'm not sure if it's technically a primitive, but it's dead simple and takes up very little space
+and this O(sqrt(N)) set-up consists of "commit to some g, write a proof that the commitment is to g, commit these guys here to 1 and write proofs that each is a commitment to 1," and so on and so forth
+and computing a commtiment in the world of hashes is dead simple as we all know. to commit to M with some secret value r, you compute H(M || r) or HMAC_r(M) := H(r xor c_1 || H(r xor c_2 || M)) or something similar to that
+in the world of RSA-like assumptions, computing a commitment to a secret x is a matter of publishing g^x for some group generator g, and computing a NIWI proof that your commitment is to that secret x is a matter of publishing (g^x h^r)^t for some random r and t, and for some other generator h for which you don't know the discrete log relationship between g and h. or something similar to that
+K
+knaccc (IRC)
+are A-NIWI proofs useful?
+S
+suraeNoether (IRC)
+i'm not familiar
+K
+knaccc (IRC)
+https://webcache.googleusercontent.com/search?q=cache:mzOUYvRNINQJ:https://eprint.iacr.org/2005/364.ps+&cd=3&hl=en&ct=clnk&gl=uk
+Additive Proofs of Knowledge - A New Notion For Non-Interactive Proofs
+This is the html version of the file https://eprint.iacr.org/2005/364.ps . Google automatically generates html versions of documents as we crawl the web. Additive Proofs of Knowledge - A New Notion For Non-Interactive Proofs
+https://eprint.iacr.org/2005/364.ps
+S
+suraeNoether (IRC)
+so, an NIZK proof in the hash world works like this. want to prove you know a secret x with a public X? You choose a random r, publish R=rG, compute e=H(R),and publishes s = r + xe. An observer will see your R and can compute e, and will see your s. They can compute S=sG = (r+xe)G = R + eX by multiplying your s by G or by computing R + eX on their own and verifying.
+ah, so that paper you linked uses 1) common reference strings (which is a trusted set-up) and 2) bilinear pairings (which is crypto used some in zcash but not in monero or bitcoin)
+K
+knaccc (IRC)
+classic
+i get the nizk proof, then my brain quickly starts to melt when it gets beyond that
+S
+suraeNoether (IRC)
+right, so far we are pretty much on the same page, my problem is this
+i don't really want to prove i know a secret x
+i want to prove that some commitment com = H(M || random entropy) is, in fact, a commitment for the message M
+which isn't exacctly a proof of knowledge
+it's weird
+K
+knaccc (IRC)
+this is the point where i stop pretending i'll be able to understand this, and hope luigi weighs in :)
+i have to go really really slowly to make the nizk proof to make sense, and then 30 minutes after the moment of bliss i've totally forgotten why it works again
+P
+pero (IRC)
+yea i like how he prefaced all this gibberish with <suraeNoether> so, i feel totally stupid right now, because
+S
+suraeNoether (IRC)
+emphasis on gibberish
+and i feel stupid because it's these two concepts that just need to be smashed together
+"just"
+like fusion is "just" a matter of putting two protons very close together
+am i crazy or
+in the miller paper
+http://monerolink.com/monerolink.pdf
+oh nevermind
+i get it
+these guys are idiots btw
+P
+pero (IRC)
+well its either that
+or they knew exactly what they were doing
+i love how amiller doesnt disclose his conflict of interest on that site
+no mention how he's head of zcash foundation
+S
+suraeNoether (IRC)
+well i can tell you this paper doesn't demand my respect as a mathematician or whatever
+
+jollymort
+i dunno why that whole project stinks so much
+everything about it feels.. douchy
+just my perspective, could be
+P
+pero (IRC)
+its not douchy
+stinky is a much better word
+currently
+if you were to withdraw 10k xmr from polo
+would it make a very large tx?
+it being an exchange and all
+SS
+suraeNoether (IRC)
+https://en.wikipedia.org/wiki/Dining_cryptographers_problem <---- why the heck
+
+Dining cryptographers problem - Wikipedia
+Dining cryptographers problem From Wikipedia, the free encyclopedia Jump to: navigation , search In cryptography, the dining cryptographers problem studies how to perform a
+D
+dEBRUYNE (IRC) joined the room.
+DD
+dEBRUYNE (IRC)
+pero: Polo doesn't allow withdrawals greater than 1k iirc
+PP
+pero (IRC)
+hmm
+D
+DaveyJones (IRC)
+yeah only 1k at once
+D
+but afaik thekozitwo has a script to withdraw more at once
+L
+luigi1111 (IRC)
+no
+not anymore
+they used to though
+K
+knaccc (IRC)
+JollyMort[m] when it comes to document hashes, a way to do that without using unencrypted payment ids would be for everyone to agree on a certain defacto "notary" destination
+it'd be an address with an unknown private spend key but a known private view key
+
+jollymort
+i like simple things
+you can look up any hash now in the block explorer
+K
+knaccc (IRC)
+actually the idea i was about to propose would have used the prunable space, so actually my idea is useless :)
+so yes, unencrypted payment ids are much better :)
+
+jollymort
+i mean "payment ID" just means "256-bit long message"
+K
+knaccc (IRC)
+and i agree, simplicity is incredibly important
+yes
+you're totally right, looking up things on xmrchain is a much better solution
+
+jollymort
+but few kB of message-space which may or may not contain an actual message is pretty cool
+G
+gingeropolous (IRC)
+and there's a way to make it so that the message can only be decrypted by the receivers spend key?
+or whatever
+
+jollymort
+we're talking about public messages
+L
+luigi1111 (IRC)
+sure
+K
+knaccc (IRC)
+gingeropolous right now, if there was an encrypted payment id (via the integrated address format) or a payload in the range proof, both would be encrypted with the recipient's view key
+
+jollymort
+by default, viewkey is used for what you describe
+L
+luigi1111 (IRC)
+right now the latter doesn't exist
+
+jollymort
+knaccc to be more precise, with the shared secret :)
+K
+knaccc (IRC)
+JollyMort[m] my bad :)
+
+jollymort
+otherwise the same key would be used for all messages
+G
+gingeropolous (IRC)
+awesome
+K
+knaccc (IRC)
+anyway, i hope more people when they read this give their opinions on encrypted payment ids, otherwise #2056 will stall
+i personally don't really see the downside of allowing payments to be sent to multiple integrated addresses within the same transaction
+
+jollymort
+agreed
+and it would ease the transition to whatever else
+i mean: 1. roll out sub-addresses & multi-TX-key at the same time + give option for multi 256/64bit PIDs
+if the market starts to use sub-addresses
+then integrated addresses could slowly be killed off
+and finally the optional message expanded to some different system
+K
+knaccc (IRC)
+i think integrated subaddresses make sense as a concept
+and they're already implemented
+i'm not sure why anyone would want to kill off encrypted payment ids ever
+
+jollymort
+not payment IDs as in "general encrypted message as attachment'
+just the packed format
+K
+knaccc (IRC)
+i don't understand what you just said
+
+jollymort
+or expand it to something flexible with some uri scheme
+where the recipient can say: pay to monero:addresss-xxyyzs whatever
+and the wallet parses address, and adds the message whatever it is
++return address
+or subaddress
+K
+knaccc (IRC)
+oh right, you're talking about range proof payloads instead of txextra payloads
+oh yeah JollyMort[m] you've reminded me
+there could be the concept of "refund subaddresses"
+
+jollymort
+oh god
+K
+knaccc (IRC)
+i.e. every subaddress could have an associated refund address
+
+jollymort
+refund addres. period.
+it can be anything
+if the sender puts a sub it's a sub
+if he puts a normal its a normal
+K
+knaccc (IRC)
+yeah i know, but i'm saying, you can automatically generate a refund address for each subaddress that would not be linked to your subaddress
+
+jollymort
+i know you like structure :)
+K
+knaccc (IRC)
+hehe ok i'll quit while i'm behind :)
+
+jollymort
+i like a bunch of parts and let people choose how to structure them
+maybe i like to always use same address for return
+K
+knaccc (IRC)
+fair enough
+
+jollymort
+anyways, i meant to kill off only the integrated address as a format eventually
+but still allow the "message"
+be it 64-bit payment id, 256-bit, or whatever else
+K
+knaccc (IRC)
+oh i see, so you'd still allow encrypted payment ids, but they would happen not as a result of an integrated address format, but instead as part of a monero uri scheme
+i really really like that
+
+jollymort
+yeah, something like that
+for simple per-user payment processing, you have subs, right
+for more advanced stuff, you have the uri: + whatever message
+which can be combined with the particular sub
+K
+knaccc (IRC)
+nice
+
+jollymort
+or to a general-purpose address like the cloakvpn
+but to make it happen will take years :)
+first step would be to roll out multiple Rs
+multiple subs + multiple PIDs
+then we would be in a situation where we have 4 types of addresses
+standard 2. integrated 3. sub 4. sub+PID integrated
+and later
+we kill 2. and 4.
+L
+luigi1111 (IRC)
+the only sucky thing is the increased scan time
+but, meh
+G
+gingeropolous (IRC)
+this is monero. You need xeons to use it
+
+jollymort
+some raspberry pies don't agree
+and we could even make payments to regular address use the sub-address P generation to keep it uniform and avoid 2 types of output creation (/me goes to check if this would work)
+G
+gingeropolous (IRC)
+in general, these are all wallet implementations, right?
+
+jollymort
+20:49
+yeah
+well, no
+K
+knaccc (IRC)
+luigi1111 there is no increased scan time, because the cost increase with multiple txpubeys is a slightly greater saving on the cost of having to otherwise send multiple transactions
+
+jollymort
+i mean, what do you mean by "these" :)
+G
+gingeropolous (IRC)
+1. standard 2. integrated 3. sub 4. sub+PID integrated
+K
+knaccc (IRC)
+luigi1111 i totally messed up that sentence
+luigi1111 i meant that you save slightly more by combining into one transaction vs having multiple transactions
+so an extra txpubkey is only ever issued when it saves an additional transaction from being created
+
+jollymort
+ginger it depends whether we go with multiple 2. and 3. and 4. per TX or no
+having multiple subs or PIDs / TX requires HF
+since the TX format must be changed
+K
+knaccc (IRC)
+@JollyMort[m] you can't use the txpubkey R=sD method when sending to a normal address
+
+jollymort
+why not? R=sB
+K
+knaccc (IRC)
+because then the recipient has to now do two EC muliplications on the txpubkey
+
+jollymort
+if you take a general address and flip the netbyte, the sending wallet would parse B as D and make R=sB
+K
+knaccc (IRC)
+so the recipient doubles their scan time
+MM
+moneromooo (IRC)
+I'm  not reading the above, but I think knaccc's "having to tell the user this address can, this can't, etc" is a good enough point that I've changed my mind.
+K
+knaccc (IRC)
+\o/
+
+jollymort
+^ same for me
+one for all and all for one
+K
+knaccc (IRC)
+cc kenshi84_ :)
+
+jollymort
+knaccc why doulbe the scan time?
+K
+knaccc (IRC)
+because normally the receipient would compute a*txpubkey for each transaction they scan
+but that won't match a normal address if the normal adddress was sent to using an alternate txpubkey sD instead of rG
+
+jollymort
+ah yes you're right
+sender would need the viewkey
+nvm
+same story as for the change output
+K
+knaccc (IRC)
+yeah otherwise i'd have tried to save another txpubkey in my scheme
+with the change output, since you're the sender, you know your own private view key
+which is why you can still send change to yourself even if the txpubkey is sD instead of rG
+
+jollymort
+yup
+and to any address with a known viewkey
+K
+knaccc (IRC)
+right
+
+jollymort
+do you feel like summing up what we talked about and making an issue under MRL repo?
+K
+knaccc (IRC)
+i've not thoguht of a use case, but it does mean you can send to multiple of your *own* subaddresses with only one txpubkey
+what did we talk about?
+
+jollymort
+yes that's right
+K
+knaccc (IRC)
+what was the key thing
+
+jollymort
+but remember, a real person has to code all this stuff
+one has only so many hoofs
+K
+knaccc (IRC)
+i disagree
+a superhero has to code this stuff
+
+jollymort
+some kind of plan for future
+K
+knaccc (IRC)
+that's why we have kenshi84_ :)
+
+jollymort
+4 address types in transition + multiple Rs
+then we kill 2 address types (integrated format)
+GG
+gingeropolous (IRC)
+so epic this PR
+
+jollymort
+and add a flexible message format / destination
+K
+knaccc (IRC)
+lol
+
+jollymort
+but here it's only the few of us talking
+and there everyone could have a look
+K
+knaccc (IRC)
+oh yeah the flexible message format etc etc is way beyond the scope of 2056
+
+jollymort
+yes
+that's why
+a separate issue under MRL
+K
+knaccc (IRC)
+oh i see
+
+jollymort
+even the multiple TXkey / TX is a big deal
+K
+knaccc (IRC)
+the multiple txkey thing will probably be part of 2056 right?
+
+jollymort
+but in transition to that, i guess 2056 could be rolled out as an "advanced" feature or something
+while still being limited
+K
+knaccc (IRC)
+i don't even think the multiple txpubkey thing is really that complicated
+
+jollymort
+don't think so
+it needs HF and ther'es no time to code it in time
+K
+knaccc (IRC)
+it doesn't need a HF
+
+jollymort
+and this is something requiring a broad consensus IMO
+how come?
+it's changing TX format is it not?
+K
+knaccc (IRC)
+it goes into the txextra, so no HF requried
+
+jollymort
+hmm
+interesting
+clever CN people :)
+so we just append more stuff to tX-extra?
+K
+knaccc (IRC)
+just like minergate put that crazy extra txextra field in and that didn't require a HF
+
+jollymort
+interesting
+cool!
+K
+knaccc (IRC)
+#define TX_EXTRA_MYSTERIOUS_MINERGATE_TAG   0xDE
+
+jollymort
+well, that changes things
+2056 could be the mega-PR we need
+so roll out multi-arr multi-integrated multi-sub multi-sub-integrated at the same time ^_^
+K
+knaccc (IRC)
+hehe
+i think so
+
+jollymort
+what happens if some older wallet sees one of those TX-es?
+it takes the first PID as "THE ONE" ?
+K
+knaccc (IRC)
+21:09
+yeah so there is only one gotcha
+
+jollymort
+which is?
+K
+knaccc (IRC)
+so payouts to multiple subaddresses won't be a problem
+
+jollymort
+figures
+but payouts to multi-PID will be
+K
+knaccc (IRC)
+but payouts to multiple integrated addresses or multiple regular addresses w/unencryptd payment ids will be
+
+jollymort
+if done by unsupporting wallets
+K
+knaccc (IRC)
+right
+right
+
+jollymort
+but i mean
+K
+knaccc (IRC)
+more specifically, if sent to unsupporting wallets
+
+jollymort
+if a service running unsupporting wallet gets request to send to PID
+it will do TX by TX, as usual
+ah yes
+that's the problem
+hmm
+K
+knaccc (IRC)
+no i mean if the requester asks for a payment to their integrated address
+and you have a newer wallet
+and you send to them as part of a multi destination payout
+
+jollymort
+yes i got that
+slow, but i got it :)
+it won't recognize it
+K
+knaccc (IRC)
+so this might be an argument for doing what moneromooo says and dropping nonces from multiple destination payouts :)
+
+jollymort
+it will receive the payment, but no attachment or wrong attachment
+K
+knaccc (IRC)
+right it won't see the pid
+not sure what you mean by attachment
+
+jollymort
+you mean as a transition period?
+nonce =?
+the "message"?
+why is it called a nonce, it can be mtonce
+K
+knaccc (IRC)
+oh, technically the field used to store the encrypted/unencrypyed payment id stuff is called the tx_extra_nonce field
+
+jollymort
+it's all glued together into TX-extra in some order with a prefix telling wallet how to parse it?
+K
+knaccc (IRC)
+yeah so the tx extra field is a variable length field, that contains a series of subfields each 'tagged' with a certain code
+so the txpubkey is put into the txextra tagged as TX_EXTRA_TAG_PUBKEY                 0x01
+
+jollymort
+oh so 0x01 + (256bits) + 0xYY + (Zbits) + ...
+K
+knaccc (IRC)
+yes
+exactly
+
+jollymort
+and the wallet reads from start, sees 0x01 knows to read 256bits, and then read the next 0xYY to tell it how much to read until hitting the next nonce ...
+K
+knaccc (IRC)
+the overall txextra field has a length varint
+and then inside that, the fields declared so far all have fixed length contents, so no extra internal length varints are required
+
+jollymort
+ok but you need to know the length of each bit otherwise you can misread some random 0x01 as a start of PUBKEY
+K
+knaccc (IRC)
+right, you know how many bytes to read depending on the field type
+the field tag i mean
+
+jollymort
+i mean, the length doesn't have to be written in the field, it's enough that the scheme is standardized  so the wallet knows that 0x01 means 256bits to read
+K
+knaccc (IRC)
+oh wait i mispoke
+ok so the txpubkey is a fixed length field, so when you see the 0x01 tag, you know to read 32 bytes after that
+but when you read a 0x02 tag, then you know it's a nonce, and then you read a varint to get the length of the nonce
+and the length will be zero if there is no nonce
+and then you read another byte to know if it's an unencryptedPaymentId or encryptedPaymentId nonce
+and then you read the rest to get the unencryptedPaymentId or encryptedPaymentId
+i think as long as these new 0x04 and 0x05 tags are only at the end of the txextra, it won't break any existing wallets
+that'll have to be checked against the wallet source code
+https://cryptonote.org/cns/cns005.txt
+i *think* the wallets might be coded to treat unknown tags as in the format tag,size(varint),payload
+in which case, we'd do it that way for compatibility
+with regard to the backwards compatibility thing with multiple integrated addresses or addresses with unencrypted payment ids, this does trouble me actually
+maybe the solution is to never allow multiple payouts to addresses with an unencrypted payment id, and to allow multiple payouts to integrated subaddresses but not integrated addresses
+or maybe i'm being too cautious and it'll all work out just fine.
+
+jollymort
+poloniex took years to start using integrated addresses
+that seems reasonable
+OR
+we make 6! address formats lol
+K
+knaccc (IRC)
+LOLLL
+i see where you're going with this
+
+jollymort
+1.standard 2.integrated classic 3.sub 4.integrated-new 5.sub-integrated
+wait that's 5
+ok
+5
+K
+knaccc (IRC)
+one for new-unencrypted payment id too
+
+jollymort
+and 2. means only 1 PID
+K
+knaccc (IRC)
+i know
+
+jollymort
+ok but that's basically 1. with different network byte
+which is ok i suppose
+K
+knaccc (IRC)
+but you need 6.new-with unencrypted payment id
+
+jollymort
+i say send to address A and use PID X, and unsupporting wallet says "wrong address"
+yeah
+6 it is ! :D
+K
+knaccc (IRC)
+heh ok we'd better for the record say we recognize this is madness :)
+
+jollymort
+hmm speaking of which
+i dunno
+i'm gonna save the log somewhere
+and go have dinner :)
+K
+knaccc (IRC)
+i think maybe we just simplify massively, and only allow multiple payouts to subaddresses
+because then all of the cleverer stuff can be added afterward without any problems
+
+i.e. multiple payouts to integrated subaddresses not allowed either
+
+jollymort
+makes sense
+but to even send to a sub
+the wallet must be updated
+so might as well add sub-integrated-multi
+old wallets would simply reject a subaddress
+and new ones would know how to send
+L
+luigi1111 (IRC)
+I don't like unencrypted integrated
+
+jollymort
+there's no such
+L
+luigi1111 (IRC)
+you were talking about it?
+K
+knaccc (IRC)
+luigi1111 there is no unencrypted integrated, only unencrpyed standard
+or unencryped subaddress
+
+jollymort
+standard/sub+PID could be uncencrypted
+if it's integrated format, means it's encrypted
+K
+knaccc (IRC)
+right
+this is all making me go slowly insane :)
+L
+luigi1111 (IRC)
+there's no need for a new integrated format, can just overload I think
+but maybe not :)
+K
+knaccc (IRC)
+luigi1111 i absolutely agree, no one was proposing a format for integrated w/unencrypted payment ids
+LL
+luigi1111 (IRC)
+k :)
+K
+knaccc (IRC)
+realistically, are we really ever going to be able to get rid of integrated addresses?
+i don't think we'll ever really be able to take them away
+in which case we should not pretend we can get rid of them, and have full support for paying out to them in multiple destination transactions
+
+jollymort
+maybe, but slowly
+K
+knaccc (IRC)
+how?
+
+jollymort
+there could always be "that one guy"
+K
+knaccc (IRC)
+you really think cloakvpn are going to be pleased about it?
+
+jollymort
+give the masses something better to use
+and then when everyone stops using integrated
+you can say "ok, nobody is using this, time to say bye bye"
+if we come up with a nice generalized uri: scheme...
+K
+knaccc (IRC)
+it sounds optimistic :)
+
+jollymort
+or make a nice "message" box in the gui
+so everyone knows what it means.. if i had 1xmr for every time i explained that PID is a message..
+K
+knaccc (IRC)
+i should be more specific with my language, just in case we're talking at across purposes here:
+when i said "realistically, are we really ever going to be able to get rid of integrated addresses?"
+what i really meant was:
+
+jollymort
+nothing happens overnight
+K
+knaccc (IRC)
+"realistically, are we really ever going to be able to get rid of encrypted payment ids in the txextra field"
+
+jollymort
+no :)
+but that's not really a problem imo
+as it's optional
+you eather read 1.txpub 2.pid 3.new stuff, or 1.txpub 2.new stuff
+we don't need to get rid of it
+K
+knaccc (IRC)
+hehe i don't even know what i think about anything any more, my brain hurts :)
+
+jollymort
+https://xkcd.com/927/ :D
+
+xkcd: Standards
+Archive What If? Blag Store About A webcomic of romance, sarcasm, math, and language. Standards |< < Prev Random Next > >|
+KK
+knaccc (IRC)
+21:55
+ha
+do you think polo just uses the standard monero wallet, and upgrades on every hard fork?
+because if everyone does so, this is all a fuss about nothing
+we can just introduce the multi-everything scheme as described in the comment in 2056, and then just wait for a HF before releasing the feature that lets people send to multiple destinations
+this is only a problem if people have written their own wallets or blockchain scanners
+
+jollymort
+eh yes
+i suspect there are those who did
+i mean, the "official" software should be thought of as reference
+in case of HFs of course everyone has to upgrade
+K
+knaccc (IRC)
+because remember RingCT would have trashed any code prior to the ringct hard fork
+do you remember what the ringCT HF date was?
+
+jollymort
+it could mean just using the core software
+L
+luigi1111 (IRC)
+Jan 5th ish
+
+jollymort
+or merging relevant commits for customized software
+P
+pero (IRC)
+9ish i think
+
+jollymort
+yeah it was late a bit 8th or 9th iirc
+L
+luigi1111 (IRC)
+oh yeah sounds right
+L
+it was supposed to be the 5th maybe
+K
+knaccc (IRC)
+so basically unless someone has written their own blockchain scanner since rinct went into trials, we're not really breaking any bakcwards compatibility
+PP
+pero (IRC)
+yea
+KK
+knaccc (IRC)
+22:02
+ok, so i vote to keep multiple destination transactions to *all* types of address :)
+FF
+floam412 (IRC) joined the room.
+K
+knaccc (IRC)
+and then only release the multiple payout feature on a HF boundary
+or even better, implement the ability to properly receive multipe destination payouts way in advance
+K
+22:06
+and then much later on an HF boundary, release the feature to actually make them

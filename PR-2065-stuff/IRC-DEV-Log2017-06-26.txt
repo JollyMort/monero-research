@@ -1,0 +1,234 @@
+room.
+
+jollymort
+btw moneromooo, for the subaddresses, index 0 is the "master" address yeah?
+should be clear to users they need to write down the "master", as it will be the one to use for recovery from seed or recovery with viewkey
+just a random thought
+you don't really need the address for recovery from seed, but it's used as a verification that the seed matches the expected wallet
+M
+moneromooo (IRC)
+I think index 0 is overridden to the main address. kenshi84_ or knaccc will know for sure.
+K
+knaccc (IRC)
+moneromooo yes that's right
+so the subaddress at major,minor index 0,0 is overridden to just the normal monero wallet address derived from the seed
+major = account number, minor = address within that account
+
+jollymort
+good
+i have bad dreams of too many options :)
+K
+knaccc (IRC)
+hehe yeah it means there is good backwards compatibility
+JollyMort[m] would be interested in your take on how much you like encrypted payment ids :)
+
+jollymort
+hahah
+they're (were) a necessary evil but i like how it's encrypted
+but there's a good idea in that discussion of yours
+if we get multiple TX keys (where "TX" won't really make sense anymore but anyways)..
+then we could think <slowly> kick out payment ID and use only subs for per customer, and replace it with a more flexible "message" which could be either encrypted or unencrypted
+K
+knaccc (IRC)
+where that message is stored in the range proof?
+or in the txextra
+
+jollymort
+this is the payment ID use-case i particularly like: http://cloakvpn.com/monero
+
+Home Windows Linux Mac iPhone Android FAQ Privacy Proxy An account will be provisioned for you using th 16 character Payment_ID you create below.
+everything else can be replaced by sub-addresses
+tx extra because of the pruning argument
+K
+knaccc (IRC)
+JollyMort[m] whoaaaa that cloakvpn thing is crazy awesome
+AA
+amiuhle (IRC) joined the room.
+
+jollymort
+i thought so, too :D
+K
+knaccc (IRC)
+JollyMort[m] the problem with variable length messages encrypted and put in the txextra is that is makes transactions stand out
+OO
+Olufunmilayo (IRC) joined the room.
+K
+knaccc (IRC)
+so i'd be very much against any kind of variable length txextra encrypted payload
+
+jollymort
+hmm why
+M
+moneromooo (IRC)
+We could also quantize ciphertext length.
+
+jollymort
+can pad it to every 256bits or something to conceal actual length
+mooo beat me to it :)
+K
+knaccc (IRC)
+yeah even then i don't like how it makes transactions stand out
+i don't even like that some transactions don't have an integrated payment id and some do
+
+jollymort
+so what?
+i mean, it's not like a person will use either PID or no PID txes
+K
+knaccc (IRC)
+suraeNoether i think would agree
+M
+moneromooo (IRC)
+That's only for the public/unencrypted ones though. And since it's unencrypted, it kinda stands out on its own.
+
+jollymort
+i like option of unencrypted, just for embedding hashes into blockchain
+but then again you could embed it encryted and reveal the shared secret
+but you could theoretically fake the shared secret to make the "unencrypted" 256bits be anything you want
+K
+knaccc (IRC)
+i don't really have a problem with pruning meaning that range proof encrypted payloads are lost, as long as the pruning period is set at e.g. 3 months
+
+jollymort
+hmm
+K
+knaccc (IRC)
+especially because i'd like to encourage longer payloads
+to include email, shipping address, order description and special shipping instructions etc
+and people should have 3 months to archive that stuff before it gets purged from the blockchain
+no reason for everyone to need a copy of that stuff
+your point about document hashes appearing in plaintext is a very good point
+
+jollymort
+there must be a limit how much you can squeeze into range proof
+M
+moneromooo (IRC)
+6 kB :P
+K
+knaccc (IRC)
+luigi said it was about 80% of the range proof
+M
+moneromooo (IRC)
+aw... OK.
+K
+knaccc (IRC)
+so about 4.8KB
+M
+moneromooo (IRC)
+What do people think about allowing some JSON in there ?
+It makes it generic to parse.
+K
+knaccc (IRC)
+well you'd be able to put whatever you wanted in there
+json or otherwise
+total free choice
+M
+moneromooo (IRC)
+Sure, whatever. But if you see JSON, you can parse for things lilke "return_address", "reference", etc.
+K
+knaccc (IRC)
+if you're a computer, sure
+MM
+moneromooo (IRC)
+Most monero users are.
+K
+knaccc (IRC)
+but since the payload is only for the benefit of the recipient, the recipient should be able to choose what the payload is
+i'd imagine lots of static web page online stores will just want a free text thing so when they receive the order they can just read what they need to ship
+T
+and if they have a clever automated system, then they'd hand out a monero:uri with a payload in json
+or in my memory fails me, but isn't there an alternative to json that is more compact, which is popularly used with 0MQ?
+oh yeah, messagepack
+i think whoever requests a certain payload should be able to choose
+or in the simplest case, unsophisticated people can just send out an email saying "order Monero hats, just send 1xmr to this address and type in your email, shipping address and and your hat size"
+and they'd just put that in free text when they sent the transaction
+
+jollymort
+and so, "monero-mail" is created
+instead of attaching money to a letter we attach letter to money
+K
+knaccc (IRC)
+if there is 4.8KB of free storage, might as well use it!
+i guess luigi is going to reduce the range proofs, so it'll be more like 2.8KB
+or 2.4KiB
+oh yeah, and if you really need more storage, you can send an additional zero value outputs to the recipient, up to the maximum transaction size permitted in a block :)
+we should probably take this back to #mrl :)
+
+jollymort
+interesting, but feels hacky
+and wasteful
+K
+knaccc (IRC)
+yeah i wouldn't recommend using more than 2.4KB / 1 output
+K
+i'm just saying if you get free storage, why not use it
+NN
+NewLiberty (IRC) joined the room.
+G
+gingeropolous (IRC)
+yay the mail idea again
+LL
+Lloydimiller4- (IRC) joined the room.
+H
+hyc (IRC)
+is that msg text encrypted by default?
+
+jollymort
+64-bit message currently is
+256-bit isn't
+range-proof embedded message, no idea
+TT
+tactful (IRC)
+Ugh...when I run monerod inside of a tmux session, after some time it fails and just says "Killed". How can I prevent this?
+H
+hyc (IRC)
+tactful - doesn't sound like a -dev question.
+expand
+MNJE
+Mast3rMonero (IRC) and 2 others joined, eyejay_3 (IRC) left
+J
+Jaquee (IRC)
+hyc: any idea why i can't run monerod in valgrind? I'm getting "src/blockchain_db/lmdb/db_lmdb.cpp:71	Failed to open lmdb environment: Invalid argument" after running "valgrind /path/to/monerod"
+https://paste.fedoraproject.org/paste/keukkPIlkxQuGcp5aOCFUg/raw
+SS
+spedex (IRC) left the room.
+H
+hyc (IRC)
+hmm. I've had that problem before
+by default valgrind only works with processes up to a particular size.
+the LMDB mmap is too big
+H
+so you would need to recompile valgrind with a higher maxsize - unfortunately it's a compile-time constant
+JJ
+Jaquee (IRC)
+ah. that makes sense. thanks
+expand
+JTJ
+jux (IRC) left and rejoined, thrmo (IRC) and one other joined
+
+jollymort
+moneromooo i see there's a type for keys crypto::secret_key spendkey = reinterpret_cast<const crypto::secret_key>(spendkey_data.data());
+would it be ok to use an array for storing multiple of those
+i can declare like crypto::secret_key spendkey[multisig_m+1] yeah?
+PP
+pero (IRC)
+is n-n ms merged?
+
+jollymort
+or multisig_m needs to be defined at compile time?
+L
+luigi1111 (IRC)
+range proof must be encrypted
+L
+or it blows up obv
+
+jollymort
+https://stackoverflow.com/questions/737240/array-size-at-run-time-without-dynamic-allocation-is-allowed
+
+Array size at run time without dynamic allocation is allowed?
+I've been using C++ for a few years, and today I saw some code, but how can this be perfectly legal? int main(int argc, char **argv) { size_t size; cin &gt;&gt; size; int array[size]; ...
+GG
+gingeropolous (IRC)
+22:10
+should probably make all monero releases have an automatic blockheight activated warning, with a message like "your software probably needs to be updated"
+EE
+expez- (IRC) joined the room.
